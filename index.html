@@ -25,15 +25,19 @@
     <style>
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #FFF7ED; -webkit-tap-highlight-color: transparent; }
         
-        .banner-mask { height: 280px; clip-path: ellipse(150% 100% at 50% 0%); overflow: hidden; position: relative; background-color: #333; }
+        .banner-mask { height: 280px; clip-path: ellipse(150% 100% at 50% 0%); overflow: hidden; position: relative; background-color: #333; z-index: 0; }
         .banner-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.90; }
         
-        .main-container { margin-top: -60px; position: relative; z-index: 10; padding-bottom: 120px; }
+        /* 關鍵修正：將主內容層級拉到最高 (z-50)，確保滑鼠點擊絕對有效 */
+        .main-container { margin-top: -60px; position: relative; z-index: 50; padding-bottom: 120px; }
+        
         .active-day { background-color: #B91C1C !important; color: white !important; box-shadow: 0 4px 6px rgba(185, 28, 28, 0.4); transform: scale(1.05); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .btn-press { transition: transform 0.1s; cursor: pointer; }
         .btn-press:active { transform: scale(0.95); }
-        .action-btn { z-index: 50; position: relative; cursor: pointer !important; }
+        
+        .action-btn { cursor: pointer !important; }
+        
         input, textarea { -webkit-appearance: none; appearance: none; }
         [v-cloak] { display: none; }
         
@@ -48,7 +52,7 @@
     <div class="banner-mask">
         <img src="banner.png" class="banner-img" alt="Osaka Trip" onerror="this.src='https://images.unsplash.com/photo-1590559374764-40a114dd1aa1?auto=format&fit=crop&w=1000&q=80'">
         
-        <div class="absolute top-12 left-6 z-20">
+        <div class="absolute top-12 left-6 z-10 pointer-events-none">
             <h1 class="text-white font-black text-4xl leading-tight text-shadow">
                 2025<br>大阪自由行
             </h1>
@@ -100,13 +104,13 @@
                             </div>
                             
                             <div class="flex items-center gap-2 relative z-50">
-                                <a v-if="item.mapUrl && item.mapUrl.trim() !== ''" :href="item.mapUrl" target="_blank" class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center shadow-sm hover:bg-blue-100 transition-colors action-btn" title="開啟地圖">
+                                <a v-if="item.mapUrl" :href="item.mapUrl" target="_blank" class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center shadow-sm hover:bg-blue-100 transition-colors action-btn" title="開啟 Google 地圖">
                                     <i class="fa-solid fa-location-arrow text-xs"></i>
                                 </a>
-                                <button @click.stop="openEditModal(idx)" class="w-8 h-8 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-200 transition-colors action-btn" title="編輯">
+                                <button @click.stop="openEditModal(idx)" class="w-8 h-8 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-200 transition-colors action-btn">
                                     <i class="fa-solid fa-pencil text-xs"></i>
                                 </button>
-                                <button @click.stop="deleteScheduleItem(idx)" class="w-8 h-8 bg-red-50 text-red-500 rounded-full flex items-center justify-center shadow-sm hover:bg-red-100 transition-colors action-btn" title="刪除">
+                                <button @click.stop="deleteScheduleItem(idx)" class="w-8 h-8 bg-red-50 text-red-500 rounded-full flex items-center justify-center shadow-sm hover:bg-red-100 transition-colors action-btn">
                                     <i class="fa-solid fa-trash text-xs"></i>
                                 </button>
                             </div>
@@ -115,7 +119,7 @@
                         <div class="flex items-center gap-2 text-sm text-gray-500 font-medium mb-2 relative z-10">
                             <i class="fa-regular fa-clock text-maple-orange"></i> {{ item.time }}
                         </div>
-                        <p class="text-sm text-gray-600 bg-gray-50 p-3 rounded-xl leading-relaxed relative z-10" v-if="item.desc" v-html="item.desc"></p>
+                        <p class="text-sm text-gray-600 bg-gray-50 p-3 rounded-xl leading-relaxed relative z-10 whitespace-pre-wrap" v-if="item.desc">{{ item.desc }}</p>
                     </div>
                 </div>
                 <div class="h-10"></div>
@@ -146,14 +150,14 @@
                     <div v-for="h in hotels" class="p-4 border border-gray-100 rounded-2xl bg-gray-50/50">
                         <span class="text-[10px] bg-gray-200 px-2 py-0.5 rounded text-gray-600 font-bold">{{ h.date }}</span>
                         <p class="font-bold text-gray-800 mt-2">{{ h.name }}</p>
-                        <a v-if="h.mapUrl" :href="h.mapUrl" target="_blank" class="text-xs text-blue-600 mt-2 inline-flex items-center gap-1 font-bold action-btn"><i class="fa-solid fa-map-pin"></i> 導航</a>
+                        <a :href="h.mapUrl" target="_blank" class="text-xs text-blue-600 mt-2 inline-flex items-center gap-1 font-bold action-btn"><i class="fa-solid fa-map-pin"></i> 導航</a>
                     </div>
                 </div>
             </div>
 
             <div class="mt-8 pt-6 border-t border-gray-100">
                 <h3 class="font-bold text-gray-800 text-sm uppercase mb-3 ml-1 flex items-center gap-2">
-                    <i class="fa-solid fa-rotate text-maple-orange"></i> 資料備份與分享
+                    <i class="fa-solid fa-rotate text-maple-orange"></i> 資料備份
                 </h3>
                 <div class="bg-bg-beige p-4 rounded-2xl space-y-3">
                     <div class="flex gap-3">
@@ -171,12 +175,10 @@
 
         <div v-if="currentTab === 'shopping'" class="bg-white rounded-3xl p-6 shadow-sm min-h-[60vh]">
             <h2 class="text-2xl font-black text-gray-800 border-l-4 border-maple-orange pl-3 mb-6">SHOPPING</h2>
-            
             <div class="flex gap-2 mb-6 bg-gray-50 p-2 rounded-2xl border border-gray-100">
                 <input v-model="newShopItem" placeholder="輸入物品名稱..." class="flex-1 bg-transparent px-2 outline-none text-gray-700 min-w-0" @keyup.enter="addShopItem">
                 <button @click="addShopItem" class="w-10 h-10 bg-maple-orange text-white rounded-xl flex-shrink-0 flex items-center justify-center shadow-md btn-press action-btn"><i class="fa-solid fa-plus"></i></button>
             </div>
-
             <div class="space-y-3">
                 <div v-for="(item, idx) in shoppingList" :key="idx" class="flex items-center justify-between p-4 bg-bg-beige rounded-2xl transition-all">
                     <div class="flex items-center gap-3 overflow-hidden">
@@ -231,9 +233,9 @@
                         <input v-model="tempItem.title" placeholder="例如：逛街、吃飯" class="w-full bg-gray-50 p-3 rounded-xl outline-none border border-gray-100 focus:border-maple-orange mt-1">
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase ml-1">Google 地標網址 (選填)</label>
+                        <label class="text-xs font-bold text-gray-400 uppercase ml-1">Google 地標連結 (選填)</label>
                         <div class="relative">
-                            <input v-model="tempItem.mapUrl" placeholder="貼上網址，留空則不顯示按鈕" class="w-full bg-gray-50 p-3 pl-9 rounded-xl outline-none border border-gray-100 focus:border-maple-orange mt-1 text-sm text-blue-600">
+                            <input v-model="tempItem.mapUrl" placeholder="貼上完整網址 (留空則不顯示按鈕)" class="w-full bg-gray-50 p-3 pl-9 rounded-xl outline-none border border-gray-100 focus:border-maple-orange mt-1 text-sm text-blue-600">
                             <i class="fa-solid fa-link absolute left-3 top-4 text-gray-400"></i>
                         </div>
                     </div>
@@ -277,27 +279,27 @@
             const jpy = ref('');
             const fileInput = ref(null);
 
-            // 預設行程
+            // 預設行程 (所有連結已更新為 Google Maps 官方查詢格式)
             const defaultSchedule = [
                 {
                     week: 'Sun', date: '01',
                     items: [
-                        { tag: '航班', title: '抵達大阪', time: '10:55', desc: 'BR182 抵達 KIX，出關後前往京都', transport: 'plane', transportType: 'plane' },
-                        { tag: '交通', title: '前往京都', time: '13:00', desc: '搭乘 Haruka 或巴士 (約 1.5hr)', transport: '1.5hr', transportType: 'train' },
-                        { tag: '住宿', title: 'Check-in', time: '15:00', desc: 'HOTEL TAVINOS KYOTO 放行李', mapUrl: 'https://maps.app.goo.gl/uRzXy5Q' },
-                        { tag: '美食', title: '大力邸', time: '16:00', desc: '享用晚餐' },
-                        { tag: '景點', title: '夜楓巡禮', time: '18:00', desc: '永觀堂、東寺夜間參拜' }
+                        { tag: '航班', title: '抵達大阪 (KIX)', time: '10:55', desc: 'BR182 抵達關西機場，出關後前往京都', transport: 'plane', transportType: 'plane' },
+                        { tag: '交通', title: '前往京都', time: '13:00', desc: '搭乘 Haruka 特急 (約 75 分鐘)', transport: '1.5hr', transportType: 'train' },
+                        { tag: '住宿', title: 'Check-in', time: '15:00', desc: 'HOTEL TAVINOS KYOTO 放行李', mapUrl: 'https://www.google.com/maps/search/?api=1&query=HOTEL+TAVINOS+KYOTO' },
+                        { tag: '美食', title: '大力邸', time: '16:00', desc: '南禪寺附近 高級烏龍麵/和牛料理', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Tairiki+Tei+Kyoto' },
+                        { tag: '景點', title: '夜楓巡禮', time: '18:00', desc: '永觀堂、東寺夜間參拜', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Eikando+Zenrinji+Kyoto' }
                     ]
                 },
-                { week: 'Mon', date: '02', items: [{ tag: '場勘', title: '京都巡禮', time: '09:00', desc: '路線：鴨川 → 花見小路 → 祇園白川 → 璃光和服 → 八阪神社' }, { tag: '其他', title: '自由活動', time: '14:00', desc: '飲料販賣機考察、市區逛街' }] },
-                { week: 'Tue', date: '03', items: [{ tag: '攝影', title: '全家福拍攝', time: '08:00', desc: '筱芷全家福開拍' }] },
-                { week: 'Wed', date: '04', items: [{ tag: '婚紗', title: '化妝', time: '05:15', desc: '飯店內造型開始 (至 08:15)' }, { tag: '婚紗', title: '南禪寺 (白紗)', time: '08:40', desc: '搭 Uber 前往，拍攝楓葉景', transport: 'Uber', transportType: 'car' }, { tag: '婚紗', title: '移動換裝', time: '10:40', desc: '前往和服店' }, { tag: '婚紗', title: '二三年阪 (和服)', time: '12:30', desc: '日式街景拍攝' }] },
-                { week: 'Thu', date: '05', items: [{ tag: '婚紗', title: '化妝', time: '05:00', desc: '飯店造型開始' }, { tag: '婚紗', title: '邊走邊拍 (白紗)', time: '08:00', desc: '鴨川、花見小路、祇園周邊', transport: 'Walk', transportType: 'walk' }, { tag: '婚紗', title: '換造型', time: '11:00', desc: '回飯店換裝' }, { tag: '婚紗', title: '真如堂 (黑紗)', time: '12:00', desc: '搭 Uber 前往拍攝', transport: 'Uber', transportType: 'car' }] },
-                { week: 'Fri', date: '06', items: [{ tag: '移動', title: '退房午餐', time: '10:00', desc: '京都車站用餐，購買 JR PASS' }, { tag: '交通', title: '前往西舞鶴', time: '12:25', desc: 'JR 列車 (抵達 13:54)', transport: 'Train', transportType: 'train' }, { tag: '交通', title: '青松號', time: '14:37', desc: '西舞鶴發車 → 天橋立 (15:18)', transportType: 'train' }, { tag: '景點', title: '天橋立沙洲', time: '15:30', desc: 'Check-in 後散步' }, { tag: '美食', title: '富田屋', time: '18:00', desc: '晚餐、宮津市區漫步' }] },
-                { week: 'Sat', date: '07', items: [{ tag: '景點', title: 'View Land', time: '09:00', desc: '搭乘纜車/吊椅上山看飛龍觀' }, { tag: '美食', title: '松和物産 本店', time: '11:00', desc: '下山午餐' }, { tag: '交通', title: '前往伊根', time: '12:30', desc: '搭乘巴士 (約30-60分)', transport: 'Bus', transportType: 'bus' }, { tag: '景點', title: '伊根舟屋', time: '14:00', desc: 'Ine Cafe 下午茶、伊根浦公園' }, { tag: '交通', title: '返回天橋立', time: '17:00', desc: '搭巴士回飯店', transportType: 'bus' }] },
-                { week: 'Sun', date: '08', items: [{ tag: '交通', title: '返回大阪', time: '11:55', desc: '搭火車前往大阪 (14:23 抵達)', transport: 'Train', transportType: 'train' }, { tag: '住宿', title: '大阪東急卓越', time: '15:00', desc: 'Check-in' }, { tag: '景點', title: '道頓崛坐船', time: '16:00', desc: '驚安殿堂旁搭船 (20分鐘)' }, { tag: '景點', title: '摩天輪', time: '20:00', desc: '唐吉訶德摩天輪' }, { tag: '美食', title: '螃蟹料理', time: '21:00', desc: '道頓崛周邊晚餐' }] },
-                { week: 'Mon', date: '09', items: [{ tag: '景點', title: '環球影城', time: '08:30', desc: '抵達 USJ', transport: 'Train', transportType: 'train' }, { tag: '活動', title: 'VIP 導覽', time: '10:30', desc: '導覽開始，請準時集合' }] },
-                { week: 'Tue', date: '10', items: [{ tag: '景點', title: '大阪市區', time: '10:00', desc: '通天閣溜滑梯' }, { tag: '景點', title: '中崎町', time: '14:00', desc: '散步、下午茶' }, { tag: '美食', title: '浪芳庵', time: '16:00', desc: '日式點心' }] },
+                { week: 'Mon', date: '02', items: [{ tag: '場勘', title: '京都巡禮', time: '09:00', desc: '路線：鴨川 → 花見小路 → 祇園白川 → 璃光和服 → 八阪神社', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Hanamikoji+Street+Kyoto' }, { tag: '其他', title: '自由活動', time: '14:00', desc: '飲料販賣機考察、市區逛街' }] },
+                { week: 'Tue', date: '03', items: [{ tag: '攝影', title: '全家福拍攝', time: '08:00', desc: '筱芷全家福開拍 (集合地點待定)' }] },
+                { week: 'Wed', date: '04', items: [{ tag: '婚紗', title: '化妝', time: '05:15', desc: '飯店內造型開始 (至 08:15)' }, { tag: '婚紗', title: '南禪寺 (白紗)', time: '08:40', desc: '搭 Uber 前往，拍攝楓葉景', transport: 'Uber', transportType: 'car', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Nanzenji+Temple' }, { tag: '婚紗', title: '移動換裝', time: '10:40', desc: '前往和服店' }, { tag: '婚紗', title: '二三年阪 (和服)', time: '12:30', desc: '日式街景拍攝', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Sannenzaka+Kyoto' }] },
+                { week: 'Thu', date: '05', items: [{ tag: '婚紗', title: '化妝', time: '05:00', desc: '飯店造型開始' }, { tag: '婚紗', title: '邊走邊拍 (白紗)', time: '08:00', desc: '鴨川、花見小路、祇園周邊', transport: 'Walk', transportType: 'walk' }, { tag: '婚紗', title: '換造型', time: '11:00', desc: '回飯店換裝' }, { tag: '婚紗', title: '真如堂 (黑紗)', time: '12:00', desc: '搭 Uber 前往拍攝', transport: 'Uber', transportType: 'car', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Shinnyo-do+Temple' }] },
+                { week: 'Fri', date: '06', items: [{ tag: '移動', title: '退房午餐', time: '10:00', desc: '京都車站用餐，購買 JR PASS' }, { tag: '交通', title: '前往西舞鶴', time: '12:25', desc: 'JR 列車 (抵達 13:54)', transport: 'Train', transportType: 'train' }, { tag: '交通', title: '青松號', time: '14:37', desc: '西舞鶴發車 → 天橋立 (15:18)', transportType: 'train' }, { tag: '景點', title: '天橋立沙洲', time: '15:30', desc: 'Check-in 後散步', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Amanohashidate+View+Land' }, { tag: '美食', title: '富田屋', time: '18:00', desc: '晚餐、宮津市區漫步', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Tondaya+Miyazu' }] },
+                { week: 'Sat', date: '07', items: [{ tag: '景點', title: 'View Land', time: '09:00', desc: '搭乘纜車/吊椅上山看飛龍觀', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Amanohashidate+View+Land' }, { tag: '美食', title: '松和物産 本店', time: '11:00', desc: '下山午餐', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Showabussan+Amanohashidate' }, { tag: '交通', title: '前往伊根', time: '12:30', desc: '搭乘巴士 (約30-60分)', transport: 'Bus', transportType: 'bus' }, { tag: '景點', title: '伊根舟屋', time: '14:00', desc: 'Ine Cafe 下午茶、伊根浦公園', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Ine+Cafe' }, { tag: '交通', title: '返回天橋立', time: '17:00', desc: '搭巴士回飯店', transportType: 'bus' }] },
+                { week: 'Sun', date: '08', items: [{ tag: '交通', title: '返回大阪', time: '11:55', desc: '搭火車前往大阪 (14:23 抵達)', transport: 'Train', transportType: 'train' }, { tag: '住宿', title: '大阪東急卓越', time: '15:00', desc: 'Check-in', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Osaka+Excel+Hotel+Tokyu' }, { tag: '景點', title: '道頓崛坐船', time: '16:00', desc: '驚安殿堂旁搭船 (20分鐘)', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Dotonbori+Cruise' }, { tag: '景點', title: '摩天輪', time: '20:00', desc: '唐吉訶德摩天輪', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Don+Quijote+Dotonbori+Ferris+Wheel' }, { tag: '美食', title: '螃蟹料理', time: '21:00', desc: '道頓崛周邊晚餐' }] },
+                { week: 'Mon', date: '09', items: [{ tag: '景點', title: '環球影城', time: '08:30', desc: '抵達 USJ', transport: 'Train', transportType: 'train', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Universal+Studios+Japan' }, { tag: '活動', title: 'VIP 導覽', time: '10:30', desc: '導覽開始，請準時集合' }] },
+                { week: 'Tue', date: '10', items: [{ tag: '景點', title: '大阪市區', time: '10:00', desc: '通天閣溜滑梯', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Tsutenkaku+Tower' }, { tag: '景點', title: '中崎町', time: '14:00', desc: '散步、下午茶', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Nakazakicho' }, { tag: '美食', title: '浪芳庵', time: '16:00', desc: '日式點心', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Namiyoshian' }] },
                 { week: 'Wed', date: '11', items: [{ tag: '交通', title: '前往機場', time: '07:00', desc: '專車/巴士前往 KIX (1小時)', transport: 'Car', transportType: 'car' }, { tag: '航班', title: '返回高雄', time: '11:55', desc: 'EVA BR181 起飛 -> 14:30 抵達', transport: 'plane', transportType: 'plane' }] }
             ];
 
@@ -305,21 +307,21 @@
             const shoppingList = ref([]);
             const expenses = ref([]);
 
-            // Local Storage
+            // Local Storage (Data Persistence)
             onMounted(() => {
-                const savedSchedule = localStorage.getItem('trip_schedule_v6');
+                const savedSchedule = localStorage.getItem('trip_schedule_v7');
                 if (savedSchedule) schedule.value = JSON.parse(savedSchedule);
                 
-                const savedShop = localStorage.getItem('trip_shop_v6');
+                const savedShop = localStorage.getItem('trip_shop_v7');
                 if (savedShop) shoppingList.value = JSON.parse(savedShop);
                 
-                const savedExp = localStorage.getItem('trip_exp_v6');
+                const savedExp = localStorage.getItem('trip_exp_v7');
                 if (savedExp) expenses.value = JSON.parse(savedExp);
             });
 
-            watch(schedule, (val) => localStorage.setItem('trip_schedule_v6', JSON.stringify(val)), { deep: true });
-            watch(shoppingList, (val) => localStorage.setItem('trip_shop_v6', JSON.stringify(val)), { deep: true });
-            watch(expenses, (val) => localStorage.setItem('trip_exp_v6', JSON.stringify(val)), { deep: true });
+            watch(schedule, (val) => localStorage.setItem('trip_schedule_v7', JSON.stringify(val)), { deep: true });
+            watch(shoppingList, (val) => localStorage.setItem('trip_shop_v7', JSON.stringify(val)), { deep: true });
+            watch(expenses, (val) => localStorage.setItem('trip_exp_v7', JSON.stringify(val)), { deep: true });
 
             // Export / Import
             const exportData = () => {
@@ -354,9 +356,7 @@
                     schedule.value = JSON.parse(JSON.stringify(defaultSchedule));
                     shoppingList.value = [];
                     expenses.value = [];
-                    localStorage.removeItem('trip_schedule_v6');
-                    localStorage.removeItem('trip_shop_v6');
-                    localStorage.removeItem('trip_exp_v6');
+                    localStorage.clear();
                     alert('已重置');
                 }
             };
@@ -413,9 +413,9 @@
 
             const tabs = [{ id: 'plan', icon: 'fa-solid fa-map-location-dot' }, { id: 'info', icon: 'fa-solid fa-circle-info' }, { id: 'shopping', icon: 'fa-solid fa-bag-shopping' }, { id: 'wallet', icon: 'fa-solid fa-wallet' }];
             const hotels = [
-                { date: '12/1-12/5', name: 'HOTEL TAVINOS KYOTO', mapUrl: '' }, 
-                { date: '12/6-12/7', name: 'Fairfield by Marriott Amanohashidate', mapUrl: '' }, 
-                { date: '12/8-12/10', name: '大阪東急卓越大酒店', mapUrl: '' }
+                { date: '12/1-12/5', name: 'HOTEL TAVINOS KYOTO', mapUrl: 'https://www.google.com/maps/search/?api=1&query=HOTEL+TAVINOS+KYOTO' }, 
+                { date: '12/6-12/7', name: 'Fairfield by Marriott Amanohashidate', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Fairfield+by+Marriott+Kyoto+Amanohashidate' }, 
+                { date: '12/8-12/10', name: '大阪東急卓越大酒店', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Osaka+Excel+Hotel+Tokyu' }
             ];
             const getTransportIcon = (type) => { const map = { plane: 'fa-solid fa-plane', train: 'fa-solid fa-train-subway', bus: 'fa-solid fa-bus', car: 'fa-solid fa-car', walk: 'fa-solid fa-person-walking' }; return map[type] || 'fa-solid fa-location-arrow'; };
 
