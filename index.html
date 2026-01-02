@@ -6,7 +6,7 @@
     <title>2025 大阪自由行 | Kyoto & Osaka</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Zen+Old+Mincho:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
@@ -14,19 +14,15 @@
             theme: {
                 extend: {
                     colors: {
-                        'akane': '#B7282E',      /* 茜色：高級的深紅 */
-                        'kuri': '#954A45',       /* 栗色：輔助紅棕色 */
-                        'washi': '#F9F8F6',      /* 和紙：溫潤背景 */
-                        'sumi': '#2B2B2B',       /* 墨色：主要文字 */
-                        'haibeni': '#F2D5D5',    /* 灰紅：極淡的裝飾色 */
+                        'akane': '#B7282E',
+                        'sumi': '#2C2C2C',
                     },
                     fontFamily: {
                         sans: ['Noto Sans TC', 'sans-serif'],
-                        serif: ['Zen Old Mincho', 'serif'], /* 高級感來源 */
+                        serif: ['Zen Old Mincho', 'serif'],
                     },
                     boxShadow: {
-                        'soft': '0 8px 30px rgba(0,0,0,0.04)',
-                        'float': '0 20px 40px rgba(0,0,0,0.08)',
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
                     }
                 }
             }
@@ -35,124 +31,123 @@
     <style>
         body { 
             font-family: 'Noto Sans TC', sans-serif; 
-            background-color: #F9F8F6; 
-            color: #2B2B2B;
+            color: #2C2C2C;
             -webkit-tap-highlight-color: transparent; 
+            background-color: #FDFBF7;
+            overflow-x: hidden;
         }
-        
-        /* 標題專用字體 */
-        h1, h2, h3, .serif-font { font-family: 'Zen Old Mincho', serif; }
 
-        /* Banner 優化：電影感漸層 */
-        .banner-wrapper { 
-            position: relative; 
-            height: 320px; 
+        /* === 動態流光背景 (高級感的核心) === */
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            background: radial-gradient(circle at 0% 0%, #fdfbf7 50%, #fce7e7 100%);
             overflow: hidden;
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
-        .banner-img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            animation: kenburns 30s infinite alternate;
-        }
-        .banner-overlay {
+        .blob {
             position: absolute;
-            inset: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%);
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: float 20s infinite ease-in-out;
         }
-        @keyframes kenburns {
-            from { transform: scale(1); }
-            to { transform: scale(1.15); }
-        }
+        .blob-1 { top: -10%; right: -10%; width: 500px; height: 500px; background: #ffe4e6; animation-delay: 0s; }
+        .blob-2 { bottom: -20%; left: -20%; width: 400px; height: 400px; background: #fff1f2; animation-delay: -5s; }
+        .blob-3 { top: 40%; left: 30%; width: 300px; height: 300px; background: #fff7ed; animation-delay: -10s; }
 
-        /* 內容區塊上移 */
-        .main-container { margin-top: -80px; position: relative; z-index: 20; padding-bottom: 120px; }
-
-        /* 玻璃擬態 (Glassmorphism) */
-        .glass {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
         }
 
-        /* 日期選中態：高級的漸層 */
-        .active-day { 
-            background: linear-gradient(135deg, #B7282E, #954A45) !important; 
-            color: white !important; 
-            box-shadow: 0 6px 16px rgba(183, 40, 46, 0.35); 
-            transform: translateY(-2px);
+        /* === 頂級毛玻璃特效 (Ultra Glassmorphism) === */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.65); /* 高透明度 */
+            backdrop-filter: blur(16px) saturate(180%); /* 強烈模糊 + 飽和度提升 */
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.8); /* 亮邊框 */
+            box-shadow: 0 8px 32px 0 rgba(100, 100, 111, 0.05); /* 柔和陰影 */
         }
-
-        /* 時間軸線條 */
-        .timeline-container { position: relative; padding-left: 24px; }
-        .timeline-line { 
-            position: absolute; 
-            left: 7px; 
-            top: 24px; 
-            bottom: -24px; 
-            width: 1px; 
-            background: #E5E5E5; 
-            z-index: 0;
-        }
-        .timeline-dot {
-            position: absolute;
-            left: 0;
-            top: 20px;
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background: #F9F8F6;
-            border: 3px solid #B7282E;
-            z-index: 10;
-        }
-
-        /* 隱藏卷軸 */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-
-        /* 按鈕互動 */
-        .btn-press { transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: pointer; }
-        .btn-press:active { transform: scale(0.92); }
         
-        /* 解決電腦版點擊問題 */
-        .action-btn { position: relative; z-index: 50; cursor: pointer !important; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+        }
 
-        /* 輸入框美化 */
+        /* Banner */
+        .banner-mask { height: 320px; clip-path: ellipse(170% 100% at 50% 0%); overflow: hidden; position: relative; }
+        .banner-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.95; transition: transform 10s ease; }
+        .banner-mask:hover .banner-img { transform: scale(1.05); }
+
+        .main-container { margin-top: -90px; position: relative; z-index: 20; padding-bottom: 120px; }
+
+        /* 日期按鈕 */
+        .active-day { 
+            background: rgba(183, 40, 46, 0.85) !important; /* 茜色半透明 */
+            backdrop-filter: blur(4px);
+            color: white !important; 
+            border: 1px solid rgba(255,255,255,0.2) !important;
+            box-shadow: 0 8px 20px rgba(183, 40, 46, 0.25); 
+            transform: scale(1.05);
+        }
+
+        /* 時間軸 */
+        .timeline-line { position: absolute; left: 8px; top: 30px; bottom: -30px; width: 1px; background: rgba(0,0,0,0.05); z-index: 0; border-left: 1px dashed rgba(0,0,0,0.1); }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .action-btn { position: relative; z-index: 50; cursor: pointer !important; }
+        .btn-press:active { transform: scale(0.92); }
+        .text-shadow { text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+        
         input, select, textarea {
-            background: #F2F2F2;
-            border: 1px solid transparent;
-            transition: all 0.3s;
+            background: rgba(255,255,255,0.5);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: 0.3s;
         }
         input:focus, select:focus, textarea:focus {
-            background: #FFFFFF;
+            background: rgba(255,255,255,0.9);
             border-color: #B7282E;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(183, 40, 46, 0.1);
         }
 
         [v-cloak] { display: none; }
         
-        /* Modal 動畫 */
+        /* Modal Animation */
         .modal-enter-active, .modal-leave-active { transition: opacity 0.3s ease; }
         .modal-enter-from, .modal-leave-to { opacity: 0; }
         .modal-enter-active .modal-card, .modal-leave-active .modal-card { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .modal-enter-from .modal-card, .modal-leave-to .modal-card { transform: scale(0.95) translateY(20px); }
+        .modal-enter-from .modal-card, .modal-leave-to .modal-card { transform: scale(0.9) translateY(40px); }
     </style>
 </head>
 <body>
 
+<div class="ambient-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+</div>
+
 <div id="app" v-cloak>
-    <div class="banner-wrapper">
+    
+    <div class="banner-mask shadow-2xl">
         <img src="banner.png" class="banner-img" alt="Kyoto" onerror="this.src='https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1000&q=80'">
-        <div class="banner-overlay"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60"></div>
         
-        <div class="absolute top-12 left-6 z-10 pointer-events-none text-white">
-            <p class="text-xs font-medium tracking-[0.3em] opacity-80 mb-2">OSAKA & KYOTO</p>
-            <h1 class="text-5xl font-bold leading-tight drop-shadow-lg">
-                2025<br><span class="serif-font font-normal">秋色漫旅</span>
+        <div class="absolute top-14 left-6 z-10 pointer-events-none text-white">
+            <p class="text-[10px] font-bold tracking-[0.4em] opacity-80 mb-1">OSAKA & KYOTO</p>
+            <h1 class="text-5xl font-bold leading-none text-shadow font-serif">
+                2025<br><span class="text-4xl font-normal">秋色漫旅</span>
             </h1>
         </div>
     </div>
@@ -160,80 +155,83 @@
     <main class="main-container px-4">
         
         <div v-if="currentTab === 'plan'" class="space-y-6">
-            <div class="glass rounded-3xl p-5 shadow-soft flex items-center justify-between">
+            
+            <div class="glass-panel rounded-[32px] p-5 flex items-center justify-between backdrop-blur-xl">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-akane/10 flex items-center justify-center text-akane text-xl">
+                    <div class="w-12 h-12 rounded-full bg-white/50 flex items-center justify-center text-akane text-2xl shadow-sm">
                         <i :class="weather.icon"></i>
                     </div>
                     <div>
-                        <div v-if="weather.loading" class="text-xs text-gray-400 font-medium tracking-wide">載入中...</div>
+                        <div v-if="weather.loading" class="text-xs text-gray-400 font-medium">更新中...</div>
                         <div v-else-if="weather.hasData">
-                            <p class="text-3xl font-serif text-sumi leading-none">{{ weather.tempMax }}<span class="text-sm font-sans">°C</span></p>
-                            <p class="text-[10px] text-gray-500 font-medium mt-1">降雨 {{ weather.rain }}mm</p>
+                            <div class="flex items-baseline gap-1">
+                                <p class="text-3xl font-serif text-sumi font-bold">{{ weather.tempMax }}</p>
+                                <span class="text-sm text-gray-500">°C</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 tracking-wide">降雨 {{ weather.rain }}mm</p>
                         </div>
                         <div v-else>
-                            <p class="text-sm font-bold text-gray-400">尚無資料</p>
-                            <p class="text-[10px] text-gray-400 tracking-wide">FUTURE DATE</p>
+                            <p class="text-lg font-serif text-gray-400">尚無資料</p>
+                            <p class="text-[10px] text-gray-400 tracking-wider">FUTURE DATE</p>
                         </div>
                     </div>
                 </div>
-                <div class="text-right flex flex-col items-end gap-1">
-                    <span class="text-[9px] bg-sumi text-white px-2 py-0.5 rounded-full tracking-wider opacity-80">
+                <div class="text-right">
+                    <span class="text-[9px] bg-sumi text-white px-2 py-1 rounded-full tracking-widest opacity-80 mb-1 inline-block">
                         {{ weather.hasData ? 'HISTORY' : 'FORECAST' }}
                     </span>
-                    <button @click="resetData" class="text-[10px] text-gray-400 underline action-btn hover:text-akane transition-colors">重置</button>
+                    <button @click="resetData" class="block text-[10px] text-gray-400 underline ml-auto hover:text-akane action-btn">重置</button>
                 </div>
             </div>
 
-            <div class="flex overflow-x-auto gap-3 pb-2 no-scrollbar px-1 py-2">
+            <div class="flex overflow-x-auto gap-3 pb-4 pt-2 no-scrollbar px-1">
                 <button v-for="(day, index) in schedule" :key="index" @click="activeDay = index"
-                    :class="['flex-shrink-0 w-14 h-20 rounded-2xl flex flex-col items-center justify-center transition-all bg-white border border-gray-100 action-btn shadow-sm', activeDay === index ? 'active-day' : 'text-gray-400']">
+                    :class="['flex-shrink-0 w-16 h-20 rounded-2xl flex flex-col items-center justify-center transition-all glass-card action-btn', activeDay === index ? 'active-day' : 'text-gray-400']">
                     <span class="text-[10px] font-bold uppercase mb-1 tracking-wider opacity-80">{{ day.week }}</span>
-                    <span class="text-xl font-serif font-bold">{{ day.date }}</span>
+                    <span class="text-lg font-serif font-bold">{{ day.date }}</span>
                 </button>
             </div>
 
-            <div class="space-y-4">
-                <div v-for="(item, idx) in schedule[activeDay].items" :key="idx" class="timeline-container group">
+            <div class="space-y-5">
+                <div v-for="(item, idx) in schedule[activeDay].items" :key="idx" class="relative pl-6 group">
                     <div class="timeline-line"></div>
-                    <div class="timeline-dot"></div>
                     
-                    <div class="bg-white rounded-2xl p-5 shadow-soft border border-white relative overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5">
-                        <div class="flex justify-between items-start mb-2 relative z-30">
+                    <div class="glass-card rounded-3xl p-5 relative overflow-hidden group">
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-akane to-orange-400 opacity-80"></div>
+                        
+                        <div class="flex justify-between items-start mb-3 relative z-30">
                             <div>
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-[10px] font-bold text-akane bg-akane/5 px-2 py-0.5 rounded border border-akane/20">{{ item.tag }}</span>
-                                    <span v-if="item.transport" class="text-[10px] text-gray-400 flex items-center gap-1">
-                                        <i :class="getTransportIcon(item.transportType)"></i> {{ item.transport }}
-                                    </span>
-                                </div>
+                                <span class="text-[10px] font-bold text-akane bg-red-50/50 px-2 py-0.5 rounded-lg border border-red-100 mb-2 inline-block">{{ item.tag }}</span>
                                 <h3 class="font-serif font-bold text-lg text-sumi leading-tight">{{ item.title }}</h3>
                             </div>
                             
-                            <div class="flex items-center gap-1 relative z-50">
-                                <a v-if="item.mapUrl && item.mapUrl.trim() !== ''" :href="item.mapUrl" target="_blank" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-500 transition-all action-btn" title="地圖">
-                                    <i class="fa-solid fa-location-arrow text-sm"></i>
+                            <div class="flex items-center gap-2 relative z-50">
+                                <a v-if="item.mapUrl && item.mapUrl.trim() !== ''" :href="item.mapUrl" target="_blank" class="w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-blue-500 shadow-sm hover:bg-blue-500 hover:text-white transition-all action-btn" title="地圖">
+                                    <i class="fa-solid fa-location-arrow text-xs"></i>
                                 </a>
-                                <button @click.stop="openEditModal(idx)" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-400 transition-all action-btn">
-                                    <i class="fa-solid fa-pen text-sm"></i>
+                                <button @click.stop="openEditModal(idx)" class="w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-gray-400 shadow-sm hover:bg-gray-800 hover:text-white transition-all action-btn">
+                                    <i class="fa-solid fa-pen text-xs"></i>
                                 </button>
-                                <button @click.stop="deleteScheduleItem(idx)" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-akane transition-all action-btn">
-                                    <i class="fa-solid fa-trash text-sm"></i>
+                                <button @click.stop="deleteScheduleItem(idx)" class="w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-gray-300 shadow-sm hover:bg-akane hover:text-white transition-all action-btn">
+                                    <i class="fa-solid fa-trash text-xs"></i>
                                 </button>
                             </div>
                         </div>
                         
                         <div class="flex items-center gap-2 text-sm text-gray-500 font-medium mb-2 relative z-10">
                             <i class="fa-regular fa-clock text-akane"></i> {{ item.time }}
+                            <span v-if="item.transport" class="text-[10px] bg-gray-100/80 px-2 py-0.5 rounded text-gray-500 flex items-center gap-1">
+                                <i :class="getTransportIcon(item.transportType)"></i> {{ item.transport }}
+                            </span>
                         </div>
                         
-                        <p class="text-sm text-gray-600 leading-relaxed relative z-10 whitespace-pre-wrap font-light" v-if="item.desc">{{ item.desc }}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed relative z-10 whitespace-pre-wrap font-light tracking-wide" v-if="item.desc">{{ item.desc }}</p>
                     </div>
                 </div>
                 <div class="h-20"></div>
             </div>
             
-            <button @click="openAddModal" class="fixed bottom-24 right-6 w-14 h-14 bg-sumi text-white rounded-full shadow-float flex items-center justify-center text-xl z-50 btn-press action-btn border border-white/20">
+            <button @click="openAddModal" class="fixed bottom-24 right-6 w-14 h-14 bg-sumi/90 backdrop-blur-md text-white rounded-full shadow-lg flex items-center justify-center text-xl z-50 btn-press action-btn border border-white/20">
                 <i class="fa-solid fa-plus"></i>
             </button>
         </div>
@@ -241,8 +239,8 @@
         <div v-if="currentTab === 'info'" class="space-y-6 pb-24">
             <h2 class="text-2xl font-serif font-bold text-sumi border-l-4 border-akane pl-4">旅程資訊</h2>
             
-            <div class="bg-sumi text-white p-6 rounded-3xl shadow-float relative overflow-hidden">
-                <div class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+            <div class="bg-sumi text-white p-6 rounded-[32px] shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
                 <p class="text-xs text-white/50 mb-2 font-bold tracking-widest uppercase">JPY Exchange Rate</p>
                 <div class="flex items-center gap-4 relative z-10">
                     <input type="number" v-model="jpy" placeholder="0" class="bg-transparent text-4xl font-serif w-full outline-none border-b border-white/20 focus:border-akane text-white placeholder-white/20">
@@ -254,11 +252,11 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-3xl p-6 shadow-soft">
+            <div class="glass-panel rounded-3xl p-6">
                 <h3 class="font-bold text-xs text-gray-400 uppercase mb-4 tracking-widest">Accommodation</h3>
-                <div class="space-y-6">
-                    <div v-for="h in hotels" class="relative pl-4 border-l-2 border-gray-100">
-                        <span class="text-[10px] bg-haibeni text-akane px-2 py-0.5 rounded font-bold">{{ h.date }}</span>
+                <div class="space-y-4">
+                    <div v-for="h in hotels" class="relative pl-4 border-l-2 border-gray-200">
+                        <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-bold">{{ h.date }}</span>
                         <p class="font-bold text-gray-800 mt-1 font-serif">{{ h.name }}</p>
                         <a v-if="h.mapUrl" :href="h.mapUrl" target="_blank" class="text-xs text-blue-500 mt-2 inline-flex items-center gap-1 hover:underline action-btn">
                             <i class="fa-solid fa-map-pin"></i> 查看地圖
@@ -267,14 +265,13 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-3xl p-6 shadow-soft">
+            <div class="glass-panel rounded-3xl p-6">
                 <h3 class="font-bold text-xs text-gray-400 uppercase mb-4 tracking-widest">Backup & Sync</h3>
-                <p class="text-xs text-gray-500 mb-4 leading-relaxed">資料儲存於本機。若需轉移至其他手機，請先匯出檔案。</p>
                 <div class="flex gap-3">
-                    <button @click="exportData" class="flex-1 bg-gray-50 text-gray-600 py-3 rounded-xl text-xs font-bold border border-gray-200 action-btn hover:bg-gray-100">
+                    <button @click="exportData" class="flex-1 bg-white/50 text-gray-600 py-3 rounded-xl text-xs font-bold border border-gray-200 action-btn hover:bg-white">
                         <i class="fa-solid fa-download mr-1"></i> 匯出
                     </button>
-                    <button @click="triggerImport" class="flex-1 bg-sumi text-white py-3 rounded-xl text-xs font-bold action-btn hover:bg-gray-800">
+                    <button @click="triggerImport" class="flex-1 bg-sumi text-white py-3 rounded-xl text-xs font-bold action-btn hover:bg-gray-800 shadow-md">
                         <i class="fa-solid fa-upload mr-1"></i> 匯入
                     </button>
                     <input type="file" ref="fileInput" class="hidden" @change="importData" accept=".json">
@@ -285,7 +282,7 @@
         <div v-if="currentTab === 'shopping'" class="space-y-6 pb-24">
             <h2 class="text-2xl font-serif font-bold text-sumi border-l-4 border-akane pl-4">購物清單</h2>
             
-            <div class="glass p-2 rounded-2xl flex gap-2 shadow-sm sticky top-4 z-40">
+            <div class="glass-panel p-2 rounded-2xl flex gap-2 sticky top-4 z-40">
                 <input v-model="newShopItem" placeholder="想買什麼..." class="flex-1 bg-transparent px-4 py-3 text-sm font-medium" @keyup.enter="addShopItem">
                 <button @click="addShopItem" class="w-12 h-12 bg-akane text-white rounded-xl flex-shrink-0 shadow-md btn-press action-btn">
                     <i class="fa-solid fa-plus"></i>
@@ -293,7 +290,7 @@
             </div>
 
             <div class="space-y-3">
-                <div v-for="(item, idx) in shoppingList" :key="idx" class="flex items-center justify-between p-4 bg-white rounded-2xl shadow-soft transition-all">
+                <div v-for="(item, idx) in shoppingList" :key="idx" class="flex items-center justify-between p-4 glass-card rounded-2xl transition-all">
                     <div class="flex items-center gap-4 overflow-hidden flex-1 cursor-pointer action-btn" @click="item.done = !item.done">
                         <div :class="['w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors', item.done ? 'bg-akane border-akane' : 'border-gray-300']">
                             <i v-if="item.done" class="fa-solid fa-check text-white text-[10px]"></i>
@@ -310,7 +307,7 @@
         <div v-if="currentTab === 'wallet'" class="space-y-6 pb-24">
             <h2 class="text-2xl font-serif font-bold text-sumi border-l-4 border-akane pl-4">花費記帳</h2>
             
-            <div class="bg-sumi text-white p-6 rounded-3xl shadow-float">
+            <div class="bg-sumi text-white p-6 rounded-[32px] shadow-xl">
                 <p class="text-xs text-white/50 mb-1 uppercase tracking-widest">Total Spent</p>
                 <div class="flex items-baseline gap-1">
                     <span class="text-xl font-serif">¥</span>
@@ -319,7 +316,7 @@
                 <p class="text-xs text-white/30 mt-2">≈ NT$ {{ Math.round(totalExpense * 0.22).toLocaleString() }}</p>
             </div>
 
-            <div class="glass p-2 rounded-2xl flex gap-2 shadow-sm">
+            <div class="glass-panel p-2 rounded-2xl flex gap-2">
                 <input v-model="newExpenseName" placeholder="項目" class="flex-[2] bg-transparent px-4 py-3 text-sm font-medium">
                 <input v-model="newExpensePrice" type="number" placeholder="¥" class="flex-1 bg-white/50 rounded-xl px-2 text-center text-sm font-bold">
                 <button @click="addExpense" class="w-12 h-12 bg-sumi text-white rounded-xl flex-shrink-0 shadow-md btn-press action-btn">
@@ -328,7 +325,7 @@
             </div>
 
             <div class="space-y-3">
-                <div v-for="(ex, idx) in expenses" :key="idx" class="flex justify-between items-center p-4 bg-white rounded-2xl shadow-soft">
+                <div v-for="(ex, idx) in expenses" :key="idx" class="flex justify-between items-center p-4 glass-card rounded-2xl">
                     <span class="font-bold text-gray-600 truncate mr-2">{{ ex.name }}</span>
                     <div class="flex items-center gap-3 flex-shrink-0">
                         <span class="font-bold font-serif text-sumi text-lg">¥ {{ parseInt(ex.price).toLocaleString() }}</span>
@@ -339,30 +336,33 @@
         </div>
     </main>
 
-    <div class="fixed bottom-6 left-4 right-4 h-16 glass rounded-full shadow-float flex items-center justify-around px-2 z-40">
+    <div class="fixed bottom-6 left-6 right-6 h-16 glass-panel rounded-full flex items-center justify-around px-2 z-40">
         <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id"
-            :class="['w-12 h-12 rounded-full flex items-center justify-center transition-all action-btn relative', currentTab === tab.id ? 'text-akane -translate-y-2 bg-white shadow-md' : 'text-gray-400 hover:text-gray-600']">
+            :class="['w-12 h-12 rounded-full flex items-center justify-center transition-all action-btn relative', currentTab === tab.id ? 'text-akane -translate-y-4 bg-white shadow-lg scale-110' : 'text-gray-400 hover:text-gray-600']">
             <i :class="[tab.icon, 'text-lg']"></i>
-            <span v-if="currentTab === tab.id" class="absolute -bottom-5 text-[9px] font-bold tracking-widest text-akane uppercase">{{ tab.name }}</span>
+            <span v-if="currentTab === tab.id" class="absolute -bottom-6 text-[9px] font-bold tracking-widest text-akane uppercase">{{ tab.name }}</span>
         </button>
     </div>
 
     <transition name="modal">
         <div v-if="showModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center px-4 pb-4 sm:pb-0 pointer-events-none">
-            <div class="absolute inset-0 bg-sumi/40 backdrop-blur-sm pointer-events-auto" @click="closeModal"></div>
-            <div class="modal-card bg-[#F9F8F6] w-full max-w-sm rounded-3xl p-6 shadow-2xl relative z-10 pointer-events-auto">
+            <div class="absolute inset-0 bg-sumi/30 backdrop-blur-sm pointer-events-auto" @click="closeModal"></div>
+            <div class="modal-card bg-white/90 backdrop-blur-xl w-full max-w-sm rounded-[32px] p-6 shadow-2xl relative z-10 pointer-events-auto border border-white">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-serif font-bold text-sumi">{{ isEditing ? '編輯行程' : '新增行程' }}</h3>
-                    <button @click="closeModal" class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 action-btn hover:bg-gray-300"><i class="fa-solid fa-xmark"></i></button>
+                    <button @click="closeModal" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 action-btn hover:bg-gray-200"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="space-y-4">
                     <div>
                         <label class="text-xs font-bold text-gray-400 uppercase ml-1">標題</label>
-                        <input v-model="tempItem.title" placeholder="請輸入標題" class="w-full bg-white p-4 rounded-xl shadow-sm text-lg font-bold text-sumi">
+                        <input v-model="tempItem.title" placeholder="請輸入標題" class="w-full bg-white p-4 rounded-2xl shadow-sm text-lg font-bold text-sumi">
                     </div>
                     <div>
                         <label class="text-xs font-bold text-gray-400 uppercase ml-1">Google Maps 網址 (選填)</label>
-                        <input v-model="tempItem.mapUrl" placeholder="http://..." class="w-full bg-white p-3 rounded-xl shadow-sm text-sm text-blue-600">
+                        <div class="relative">
+                            <input v-model="tempItem.mapUrl" placeholder="http://..." class="w-full bg-white p-3 pl-8 rounded-xl shadow-sm text-sm text-blue-600">
+                            <i class="fa-solid fa-link absolute left-3 top-3.5 text-gray-300"></i>
+                        </div>
                     </div>
                     <div class="flex gap-3">
                         <div class="flex-1">
@@ -399,10 +399,7 @@
             const activeDay = ref(0);
             const jpy = ref('');
             const fileInput = ref(null);
-            
-            // 年份設定
             const tripYear = ref('2025');
-            // 天氣狀態
             const weather = ref({ loading: false, hasData: false, tempMax: '', rain: '', icon: 'fa-solid fa-cloud-sun' });
 
             const defaultSchedule = [
@@ -432,7 +429,6 @@
             const shoppingList = ref([]);
             const expenses = ref([]);
 
-            // Weather API (Open-Meteo)
             const fetchWeather = async () => {
                 weather.value.loading = true;
                 const currentDay = schedule.value[activeDay.value];
@@ -445,7 +441,7 @@
                 }
 
                 try {
-                    const lat = 34.69; const lon = 135.50; // Osaka
+                    const lat = 34.69; const lon = 135.50; 
                     const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${dateStr}&end_date=${dateStr}&daily=temperature_2m_max,precipitation_sum&timezone=Asia%2FTokyo`;
                     
                     const res = await fetch(url);
@@ -468,25 +464,22 @@
                 }
             };
 
-            // Watch & Lifecycle
             watch(activeDay, () => fetchWeather());
             onMounted(() => {
-                const savedSch = localStorage.getItem('trip_v9_sch');
+                const savedSch = localStorage.getItem('trip_v10_sch');
                 if (savedSch) schedule.value = JSON.parse(savedSch);
-                const savedShop = localStorage.getItem('trip_v9_shop');
+                const savedShop = localStorage.getItem('trip_v10_shop');
                 if (savedShop) shoppingList.value = JSON.parse(savedShop);
-                const savedExp = localStorage.getItem('trip_v9_exp');
+                const savedExp = localStorage.getItem('trip_v10_exp');
                 if (savedExp) expenses.value = JSON.parse(savedExp);
                 
-                fetchWeather(); // Init Load
+                fetchWeather(); 
             });
 
-            // Auto Save
-            watch(schedule, v => localStorage.setItem('trip_v9_sch', JSON.stringify(v)), { deep: true });
-            watch(shoppingList, v => localStorage.setItem('trip_v9_shop', JSON.stringify(v)), { deep: true });
-            watch(expenses, v => localStorage.setItem('trip_v9_exp', JSON.stringify(v)), { deep: true });
+            watch(schedule, v => localStorage.setItem('trip_v10_sch', JSON.stringify(v)), { deep: true });
+            watch(shoppingList, v => localStorage.setItem('trip_v10_shop', JSON.stringify(v)), { deep: true });
+            watch(expenses, v => localStorage.setItem('trip_v10_exp', JSON.stringify(v)), { deep: true });
 
-            // UI Logics
             const newShopItem = ref('');
             const addShopItem = () => { if(newShopItem.value.trim()) { shoppingList.value.push({ name: newShopItem.value, done: false }); newShopItem.value = ''; } };
             const removeShopItem = (idx) => shoppingList.value.splice(idx, 1);
@@ -497,7 +490,6 @@
             const removeExpense = (idx) => expenses.value.splice(idx, 1);
             const totalExpense = computed(() => expenses.value.reduce((acc, cur) => acc + parseInt(cur.price || 0), 0));
 
-            // Modal Logic
             const showModal = ref(false);
             const isEditing = ref(false);
             const editingIndex = ref(-1);
@@ -537,7 +529,6 @@
                 }
             };
 
-            // Export / Import
             const exportData = () => {
                 const data = { schedule: schedule.value, shoppingList: shoppingList.value, expenses: expenses.value };
                 const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
@@ -586,4 +577,3 @@
 </script>
 </body>
 </html>
-
