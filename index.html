@@ -28,7 +28,6 @@
         .banner-mask { height: 280px; clip-path: ellipse(150% 100% at 50% 0%); overflow: hidden; position: relative; background-color: #333; z-index: 0; }
         .banner-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.90; }
         
-        /* 關鍵修正：將主內容層級拉到最高 (z-50)，確保滑鼠點擊絕對有效 */
         .main-container { margin-top: -60px; position: relative; z-index: 50; padding-bottom: 120px; }
         
         .active-day { background-color: #B91C1C !important; color: white !important; box-shadow: 0 4px 6px rgba(185, 28, 28, 0.4); transform: scale(1.05); }
@@ -54,7 +53,7 @@
         
         <div class="absolute top-12 left-6 z-10 pointer-events-none">
             <h1 class="text-white font-black text-4xl leading-tight text-shadow">
-                2025<br>大阪自由行
+                {{ tripYear }}<br>大阪自由行
             </h1>
             <p class="text-white/90 text-sm font-bold mt-1 tracking-widest text-shadow">OSAKA TRIP</p>
         </div>
@@ -70,14 +69,29 @@
     <main class="main-container px-4">
         
         <div v-if="currentTab === 'plan'" class="space-y-6">
-            <div class="bg-white/95 backdrop-blur rounded-3xl p-4 shadow-sm flex items-center justify-between border border-orange-100">
+            <div class="bg-white/95 backdrop-blur rounded-3xl p-4 shadow-sm flex items-center justify-between border border-orange-100 min-h-[72px]">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-maple-orange">
-                        <i class="fa-solid fa-cloud-sun text-xl"></i>
+                        <i :class="weather.icon"></i>
                     </div>
-                    <div><p class="font-bold text-gray-800">大阪 12°C</p><p class="text-xs text-gray-500">降雨機率 10%</p></div>
+                    <div>
+                        <div v-if="weather.loading" class="text-xs text-gray-400 font-bold">天氣讀取中...</div>
+                        <div v-else-if="weather.hasData">
+                            <p class="font-bold text-gray-800 text-lg leading-none">{{ weather.tempMax }}°C</p>
+                            <p class="text-[10px] text-gray-500 mt-1">累積雨量: {{ weather.rain }}mm</p>
+                        </div>
+                        <div v-else>
+                            <p class="font-bold text-gray-400 text-sm">尚無天氣資料</p>
+                            <p class="text-[10px] text-gray-400">(未來日期)</p>
+                        </div>
+                    </div>
                 </div>
-                <button @click="resetData" class="text-[10px] text-gray-400 underline action-btn">重置預設</button>
+                <div class="text-right">
+                    <span class="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold block mb-1">
+                        {{ weather.hasData ? 'HISTORY' : 'FUTURE' }}
+                    </span>
+                    <button @click="resetData" class="text-[10px] text-gray-400 underline action-btn">重置預設</button>
+                </div>
             </div>
 
             <div class="flex overflow-x-auto gap-3 pb-2 no-scrollbar px-1">
@@ -104,7 +118,7 @@
                             </div>
                             
                             <div class="flex items-center gap-2 relative z-50">
-                                <a v-if="item.mapUrl" :href="item.mapUrl" target="_blank" class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center shadow-sm hover:bg-blue-100 transition-colors action-btn" title="開啟 Google 地圖">
+                                <a v-if="item.mapUrl && item.mapUrl.trim() !== ''" :href="item.mapUrl" target="_blank" class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center shadow-sm hover:bg-blue-100 transition-colors action-btn" title="開啟 Google 地圖">
                                     <i class="fa-solid fa-location-arrow text-xs"></i>
                                 </a>
                                 <button @click.stop="openEditModal(idx)" class="w-8 h-8 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-200 transition-colors action-btn">
@@ -150,7 +164,7 @@
                     <div v-for="h in hotels" class="p-4 border border-gray-100 rounded-2xl bg-gray-50/50">
                         <span class="text-[10px] bg-gray-200 px-2 py-0.5 rounded text-gray-600 font-bold">{{ h.date }}</span>
                         <p class="font-bold text-gray-800 mt-2">{{ h.name }}</p>
-                        <a :href="h.mapUrl" target="_blank" class="text-xs text-blue-600 mt-2 inline-flex items-center gap-1 font-bold action-btn"><i class="fa-solid fa-map-pin"></i> 導航</a>
+                        <a v-if="h.mapUrl" :href="h.mapUrl" target="_blank" class="text-xs text-blue-600 mt-2 inline-flex items-center gap-1 font-bold action-btn"><i class="fa-solid fa-map-pin"></i> 導航</a>
                     </div>
                 </div>
             </div>
@@ -233,9 +247,9 @@
                         <input v-model="tempItem.title" placeholder="例如：逛街、吃飯" class="w-full bg-gray-50 p-3 rounded-xl outline-none border border-gray-100 focus:border-maple-orange mt-1">
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase ml-1">Google 地標連結 (選填)</label>
+                        <label class="text-xs font-bold text-gray-400 uppercase ml-1">Google 地標網址 (選填)</label>
                         <div class="relative">
-                            <input v-model="tempItem.mapUrl" placeholder="貼上完整網址 (留空則不顯示按鈕)" class="w-full bg-gray-50 p-3 pl-9 rounded-xl outline-none border border-gray-100 focus:border-maple-orange mt-1 text-sm text-blue-600">
+                            <input v-model="tempItem.mapUrl" placeholder="貼上網址，留空則不顯示按鈕" class="w-full bg-gray-50 p-3 pl-9 rounded-xl outline-none border border-gray-100 focus:border-maple-orange mt-1 text-sm text-blue-600">
                             <i class="fa-solid fa-link absolute left-3 top-4 text-gray-400"></i>
                         </div>
                     </div>
@@ -278,11 +292,16 @@
             const activeDay = ref(0);
             const jpy = ref('');
             const fileInput = ref(null);
+            
+            // 設定旅行年份
+            const tripYear = ref('2025');
 
-            // 預設行程 (所有連結已更新為 Google Maps 官方查詢格式)
+            // 天氣資訊
+            const weather = ref({ loading: false, hasData: false, tempMax: '', rain: '', icon: 'fa-solid fa-cloud-sun' });
+
             const defaultSchedule = [
                 {
-                    week: 'Sun', date: '01',
+                    week: 'Sun', date: '12/01',
                     items: [
                         { tag: '航班', title: '抵達大阪 (KIX)', time: '10:55', desc: 'BR182 抵達關西機場，出關後前往京都', transport: 'plane', transportType: 'plane' },
                         { tag: '交通', title: '前往京都', time: '13:00', desc: '搭乘 Haruka 特急 (約 75 分鐘)', transport: '1.5hr', transportType: 'train' },
@@ -291,39 +310,94 @@
                         { tag: '景點', title: '夜楓巡禮', time: '18:00', desc: '永觀堂、東寺夜間參拜', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Eikando+Zenrinji+Kyoto' }
                     ]
                 },
-                { week: 'Mon', date: '02', items: [{ tag: '場勘', title: '京都巡禮', time: '09:00', desc: '路線：鴨川 → 花見小路 → 祇園白川 → 璃光和服 → 八阪神社', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Hanamikoji+Street+Kyoto' }, { tag: '其他', title: '自由活動', time: '14:00', desc: '飲料販賣機考察、市區逛街' }] },
-                { week: 'Tue', date: '03', items: [{ tag: '攝影', title: '全家福拍攝', time: '08:00', desc: '筱芷全家福開拍 (集合地點待定)' }] },
-                { week: 'Wed', date: '04', items: [{ tag: '婚紗', title: '化妝', time: '05:15', desc: '飯店內造型開始 (至 08:15)' }, { tag: '婚紗', title: '南禪寺 (白紗)', time: '08:40', desc: '搭 Uber 前往，拍攝楓葉景', transport: 'Uber', transportType: 'car', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Nanzenji+Temple' }, { tag: '婚紗', title: '移動換裝', time: '10:40', desc: '前往和服店' }, { tag: '婚紗', title: '二三年阪 (和服)', time: '12:30', desc: '日式街景拍攝', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Sannenzaka+Kyoto' }] },
-                { week: 'Thu', date: '05', items: [{ tag: '婚紗', title: '化妝', time: '05:00', desc: '飯店造型開始' }, { tag: '婚紗', title: '邊走邊拍 (白紗)', time: '08:00', desc: '鴨川、花見小路、祇園周邊', transport: 'Walk', transportType: 'walk' }, { tag: '婚紗', title: '換造型', time: '11:00', desc: '回飯店換裝' }, { tag: '婚紗', title: '真如堂 (黑紗)', time: '12:00', desc: '搭 Uber 前往拍攝', transport: 'Uber', transportType: 'car', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Shinnyo-do+Temple' }] },
-                { week: 'Fri', date: '06', items: [{ tag: '移動', title: '退房午餐', time: '10:00', desc: '京都車站用餐，購買 JR PASS' }, { tag: '交通', title: '前往西舞鶴', time: '12:25', desc: 'JR 列車 (抵達 13:54)', transport: 'Train', transportType: 'train' }, { tag: '交通', title: '青松號', time: '14:37', desc: '西舞鶴發車 → 天橋立 (15:18)', transportType: 'train' }, { tag: '景點', title: '天橋立沙洲', time: '15:30', desc: 'Check-in 後散步', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Amanohashidate+View+Land' }, { tag: '美食', title: '富田屋', time: '18:00', desc: '晚餐、宮津市區漫步', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Tondaya+Miyazu' }] },
-                { week: 'Sat', date: '07', items: [{ tag: '景點', title: 'View Land', time: '09:00', desc: '搭乘纜車/吊椅上山看飛龍觀', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Amanohashidate+View+Land' }, { tag: '美食', title: '松和物産 本店', time: '11:00', desc: '下山午餐', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Showabussan+Amanohashidate' }, { tag: '交通', title: '前往伊根', time: '12:30', desc: '搭乘巴士 (約30-60分)', transport: 'Bus', transportType: 'bus' }, { tag: '景點', title: '伊根舟屋', time: '14:00', desc: 'Ine Cafe 下午茶、伊根浦公園', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Ine+Cafe' }, { tag: '交通', title: '返回天橋立', time: '17:00', desc: '搭巴士回飯店', transportType: 'bus' }] },
-                { week: 'Sun', date: '08', items: [{ tag: '交通', title: '返回大阪', time: '11:55', desc: '搭火車前往大阪 (14:23 抵達)', transport: 'Train', transportType: 'train' }, { tag: '住宿', title: '大阪東急卓越', time: '15:00', desc: 'Check-in', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Osaka+Excel+Hotel+Tokyu' }, { tag: '景點', title: '道頓崛坐船', time: '16:00', desc: '驚安殿堂旁搭船 (20分鐘)', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Dotonbori+Cruise' }, { tag: '景點', title: '摩天輪', time: '20:00', desc: '唐吉訶德摩天輪', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Don+Quijote+Dotonbori+Ferris+Wheel' }, { tag: '美食', title: '螃蟹料理', time: '21:00', desc: '道頓崛周邊晚餐' }] },
-                { week: 'Mon', date: '09', items: [{ tag: '景點', title: '環球影城', time: '08:30', desc: '抵達 USJ', transport: 'Train', transportType: 'train', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Universal+Studios+Japan' }, { tag: '活動', title: 'VIP 導覽', time: '10:30', desc: '導覽開始，請準時集合' }] },
-                { week: 'Tue', date: '10', items: [{ tag: '景點', title: '大阪市區', time: '10:00', desc: '通天閣溜滑梯', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Tsutenkaku+Tower' }, { tag: '景點', title: '中崎町', time: '14:00', desc: '散步、下午茶', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Nakazakicho' }, { tag: '美食', title: '浪芳庵', time: '16:00', desc: '日式點心', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Namiyoshian' }] },
-                { week: 'Wed', date: '11', items: [{ tag: '交通', title: '前往機場', time: '07:00', desc: '專車/巴士前往 KIX (1小時)', transport: 'Car', transportType: 'car' }, { tag: '航班', title: '返回高雄', time: '11:55', desc: 'EVA BR181 起飛 -> 14:30 抵達', transport: 'plane', transportType: 'plane' }] }
+                { week: 'Mon', date: '12/02', items: [{ tag: '場勘', title: '京都巡禮', time: '09:00', desc: '路線：鴨川 → 花見小路 → 祇園白川 → 璃光和服 → 八阪神社', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Hanamikoji+Street+Kyoto' }, { tag: '其他', title: '自由活動', time: '14:00', desc: '飲料販賣機考察、市區逛街' }] },
+                { week: 'Tue', date: '12/03', items: [{ tag: '攝影', title: '全家福拍攝', time: '08:00', desc: '筱芷全家福開拍 (集合地點待定)' }] },
+                { week: 'Wed', date: '12/04', items: [{ tag: '婚紗', title: '化妝', time: '05:15', desc: '飯店內造型開始 (至 08:15)' }, { tag: '婚紗', title: '南禪寺 (白紗)', time: '08:40', desc: '搭 Uber 前往，拍攝楓葉景', transport: 'Uber', transportType: 'car', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Nanzenji+Temple' }, { tag: '婚紗', title: '移動換裝', time: '10:40', desc: '前往和服店' }, { tag: '婚紗', title: '二三年阪 (和服)', time: '12:30', desc: '日式街景拍攝', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Sannenzaka+Kyoto' }] },
+                { week: 'Thu', date: '12/05', items: [{ tag: '婚紗', title: '化妝', time: '05:00', desc: '飯店造型開始' }, { tag: '婚紗', title: '邊走邊拍 (白紗)', time: '08:00', desc: '鴨川、花見小路、祇園周邊', transport: 'Walk', transportType: 'walk' }, { tag: '婚紗', title: '換造型', time: '11:00', desc: '回飯店換裝' }, { tag: '婚紗', title: '真如堂 (黑紗)', time: '12:00', desc: '搭 Uber 前往拍攝', transport: 'Uber', transportType: 'car', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Shinnyo-do+Temple' }] },
+                { week: 'Fri', date: '12/06', items: [{ tag: '移動', title: '退房午餐', time: '10:00', desc: '京都車站用餐，購買 JR PASS' }, { tag: '交通', title: '前往西舞鶴', time: '12:25', desc: 'JR 列車 (抵達 13:54)', transport: 'Train', transportType: 'train' }, { tag: '交通', title: '青松號', time: '14:37', desc: '西舞鶴發車 → 天橋立 (15:18)', transportType: 'train' }, { tag: '景點', title: '天橋立沙洲', time: '15:30', desc: 'Check-in 後散步', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Amanohashidate+View+Land' }, { tag: '美食', title: '富田屋', time: '18:00', desc: '晚餐、宮津市區漫步', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Tondaya+Miyazu' }] },
+                { week: 'Sat', date: '12/07', items: [{ tag: '景點', title: 'View Land', time: '09:00', desc: '搭乘纜車/吊椅上山看飛龍觀', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Amanohashidate+View+Land' }, { tag: '美食', title: '松和物産 本店', time: '11:00', desc: '下山午餐', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Showabussan+Amanohashidate' }, { tag: '交通', title: '前往伊根', time: '12:30', desc: '搭乘巴士 (約30-60分)', transport: 'Bus', transportType: 'bus' }, { tag: '景點', title: '伊根舟屋', time: '14:00', desc: 'Ine Cafe 下午茶、伊根浦公園', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Ine+Cafe' }, { tag: '交通', title: '返回天橋立', time: '17:00', desc: '搭巴士回飯店', transportType: 'bus' }] },
+                { week: 'Sun', date: '12/08', items: [{ tag: '交通', title: '返回大阪', time: '11:55', desc: '搭火車前往大阪 (14:23 抵達)', transport: 'Train', transportType: 'train' }, { tag: '住宿', title: '大阪東急卓越', time: '15:00', desc: 'Check-in', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Osaka+Excel+Hotel+Tokyu' }, { tag: '景點', title: '道頓崛坐船', time: '16:00', desc: '驚安殿堂旁搭船 (20分鐘)', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Dotonbori+Cruise' }, { tag: '景點', title: '摩天輪', time: '20:00', desc: '唐吉訶德摩天輪', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Don+Quijote+Dotonbori+Ferris+Wheel' }, { tag: '美食', title: '螃蟹料理', time: '21:00', desc: '道頓崛周邊晚餐' }] },
+                { week: 'Mon', date: '12/09', items: [{ tag: '景點', title: '環球影城', time: '08:30', desc: '抵達 USJ', transport: 'Train', transportType: 'train', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Universal+Studios+Japan' }, { tag: '活動', title: 'VIP 導覽', time: '10:30', desc: '導覽開始，請準時集合' }] },
+                { week: 'Tue', date: '12/10', items: [{ tag: '景點', title: '大阪市區', time: '10:00', desc: '通天閣溜滑梯', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Tsutenkaku+Tower' }, { tag: '景點', title: '中崎町', time: '14:00', desc: '散步、下午茶', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Nakazakicho' }, { tag: '美食', title: '浪芳庵', time: '16:00', desc: '日式點心', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Namiyoshian' }] },
+                { week: 'Wed', date: '12/11', items: [{ tag: '交通', title: '前往機場', time: '07:00', desc: '專車/巴士前往 KIX (1小時)', transport: 'Car', transportType: 'car' }, { tag: '航班', title: '返回高雄', time: '11:55', desc: 'EVA BR181 起飛 -> 14:30 抵達', transport: 'plane', transportType: 'plane' }] }
             ];
 
             const schedule = ref(JSON.parse(JSON.stringify(defaultSchedule)));
             const shoppingList = ref([]);
             const expenses = ref([]);
 
-            // Local Storage (Data Persistence)
-            onMounted(() => {
-                const savedSchedule = localStorage.getItem('trip_schedule_v7');
-                if (savedSchedule) schedule.value = JSON.parse(savedSchedule);
-                
-                const savedShop = localStorage.getItem('trip_shop_v7');
-                if (savedShop) shoppingList.value = JSON.parse(savedShop);
-                
-                const savedExp = localStorage.getItem('trip_exp_v7');
-                if (savedExp) expenses.value = JSON.parse(savedExp);
+            // ======================
+            //  天氣查詢系統 (Open-Meteo API)
+            // ======================
+            const fetchWeather = async () => {
+                weather.value.loading = true;
+                const currentDay = schedule.value[activeDay.value];
+                const dateStr = `${tripYear.value}-${currentDay.date.replace('/', '-')}`;
+                const today = new Date().toISOString().split('T')[0];
+
+                // 如果日期是未來，不顯示天氣 (符合您的需求)
+                if (dateStr > today) {
+                    weather.value = { loading: false, hasData: false, icon: 'fa-solid fa-cloud-sun' };
+                    return;
+                }
+
+                try {
+                    // 大阪座標
+                    const lat = 34.69;
+                    const lon = 135.50;
+                    const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${dateStr}&end_date=${dateStr}&daily=temperature_2m_max,precipitation_sum&timezone=Asia%2FTokyo`;
+                    
+                    const res = await fetch(url);
+                    const data = await res.json();
+
+                    if (data.daily && data.daily.temperature_2m_max) {
+                        const temp = data.daily.temperature_2m_max[0];
+                        const rain = data.daily.precipitation_sum[0];
+                        
+                        let icon = 'fa-solid fa-sun';
+                        if (rain > 5) icon = 'fa-solid fa-cloud-showers-heavy';
+                        else if (rain > 0) icon = 'fa-solid fa-cloud-rain';
+                        else if (temp < 10) icon = 'fa-solid fa-snowflake';
+
+                        weather.value = {
+                            loading: false,
+                            hasData: true,
+                            tempMax: temp,
+                            rain: rain,
+                            icon: icon
+                        };
+                    } else {
+                        weather.value = { loading: false, hasData: false, icon: 'fa-solid fa-cloud-sun' };
+                    }
+                } catch (e) {
+                    console.error("Weather fetch failed", e);
+                    weather.value = { loading: false, hasData: false, icon: 'fa-solid fa-cloud-sun' };
+                }
+            };
+
+            // 監聽日期變動，自動抓天氣
+            watch(activeDay, () => {
+                fetchWeather();
             });
 
-            watch(schedule, (val) => localStorage.setItem('trip_schedule_v7', JSON.stringify(val)), { deep: true });
-            watch(shoppingList, (val) => localStorage.setItem('trip_shop_v7', JSON.stringify(val)), { deep: true });
-            watch(expenses, (val) => localStorage.setItem('trip_exp_v7', JSON.stringify(val)), { deep: true });
+            onMounted(() => {
+                const savedSchedule = localStorage.getItem('trip_schedule_v8');
+                if (savedSchedule) schedule.value = JSON.parse(savedSchedule);
+                
+                const savedShop = localStorage.getItem('trip_shop_v8');
+                if (savedShop) shoppingList.value = JSON.parse(savedShop);
+                
+                const savedExp = localStorage.getItem('trip_exp_v8');
+                if (savedExp) expenses.value = JSON.parse(savedExp);
 
-            // Export / Import
+                // 初始化載入第一天天氣
+                fetchWeather();
+            });
+
+            watch(schedule, (val) => localStorage.setItem('trip_schedule_v8', JSON.stringify(val)), { deep: true });
+            watch(shoppingList, (val) => localStorage.setItem('trip_shop_v8', JSON.stringify(val)), { deep: true });
+            watch(expenses, (val) => localStorage.setItem('trip_exp_v8', JSON.stringify(val)), { deep: true });
+
             const exportData = () => {
                 const data = { schedule: schedule.value, shoppingList: shoppingList.value, expenses: expenses.value, timestamp: new Date().toLocaleString() };
                 const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
@@ -356,12 +430,14 @@
                     schedule.value = JSON.parse(JSON.stringify(defaultSchedule));
                     shoppingList.value = [];
                     expenses.value = [];
-                    localStorage.clear();
+                    localStorage.removeItem('trip_schedule_v8');
+                    localStorage.removeItem('trip_shop_v8');
+                    localStorage.removeItem('trip_exp_v8');
                     alert('已重置');
+                    location.reload();
                 }
             };
 
-            // UI Logics
             const newShopItem = ref('');
             const addShopItem = () => { if(newShopItem.value.trim()) { shoppingList.value.push({ name: newShopItem.value, done: false }); newShopItem.value = ''; } };
             const removeShopItem = (idx) => shoppingList.value.splice(idx, 1);
@@ -372,7 +448,6 @@
             const removeExpense = (idx) => expenses.value.splice(idx, 1);
             const totalExpense = computed(() => expenses.value.reduce((acc, cur) => acc + parseInt(cur.price || 0), 0));
 
-            // Modal Logic
             const showModal = ref(false);
             const isEditing = ref(false);
             const editingIndex = ref(-1);
@@ -424,7 +499,7 @@
                 newShopItem, shoppingList, addShopItem, removeShopItem, 
                 newExpenseName, newExpensePrice, expenses, addExpense, removeExpense, totalExpense,
                 showModal, tempItem, openAddModal, openEditModal, closeModal, saveSchedule, deleteScheduleItem, isEditing,
-                exportData, importData, triggerImport, fileInput, resetData
+                exportData, importData, triggerImport, fileInput, resetData, weather, tripYear
             };
         }
     }).mount('#app');
