@@ -24,8 +24,11 @@
     </script>
     <style>
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #FFF7ED; -webkit-tap-highlight-color: transparent; }
+        
+        /* Banner 設定：讀取 banner.png */
         .banner-mask { height: 280px; clip-path: ellipse(150% 100% at 50% 0%); overflow: hidden; position: relative; background-color: #333; }
         .banner-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.95; }
+        
         .main-container { margin-top: -60px; position: relative; z-index: 10; padding-bottom: 120px; }
         .active-day { background-color: #B91C1C !important; color: white !important; box-shadow: 0 4px 6px rgba(185, 28, 28, 0.4); transform: scale(1.05); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -45,7 +48,7 @@
 
 <div id="app" v-cloak>
     <div class="banner-mask">
-        <img src="banner.png" class="banner-img" alt="Kyoto Maple">
+        <img src="banner.png" class="banner-img" alt="Kyoto Maple" onerror="this.src='https://images.unsplash.com/photo-1478436127897-769e1b3f0f36?auto=format&fit=crop&w=1000&q=80'">
         <div class="absolute bottom-20 right-5 flex gap-3 z-20">
             <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id"
                 :class="['w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all border-2 border-white', currentTab === tab.id ? 'bg-maple-red text-white scale-110' : 'bg-white text-gray-400']">
@@ -64,7 +67,7 @@
                     </div>
                     <div><p class="font-bold text-gray-800">京都 12°C</p><p class="text-xs text-gray-500">降雨機率 10%</p></div>
                 </div>
-                <span class="text-[10px] bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold">LIVE</span>
+                <button @click="resetData" class="text-[10px] text-gray-400 underline">重置預設</button>
             </div>
 
             <div class="flex overflow-x-auto gap-3 pb-2 no-scrollbar px-1">
@@ -106,7 +109,6 @@
                         <div class="flex items-center gap-2 text-sm text-gray-500 font-medium mb-2">
                             <i class="fa-regular fa-clock text-maple-orange"></i> {{ item.time }}
                         </div>
-                        
                         <p class="text-sm text-gray-600 bg-gray-50 p-3 rounded-xl leading-relaxed" v-if="item.desc" v-html="item.desc"></p>
                     </div>
                 </div>
@@ -120,6 +122,7 @@
 
         <div v-if="currentTab === 'info'" class="space-y-6 bg-white rounded-3xl p-6 shadow-sm min-h-[60vh]">
             <h2 class="text-2xl font-black text-gray-800 border-l-4 border-maple-red pl-3">INFO</h2>
+            
             <div class="bg-gray-900 text-white p-6 rounded-2xl shadow-lg">
                 <p class="text-xs text-gray-400 mb-3 font-bold tracking-widest uppercase">JPY to TWD (0.22)</p>
                 <div class="flex items-center gap-4">
@@ -130,6 +133,7 @@
                     </div>
                 </div>
             </div>
+
             <div>
                 <h3 class="font-bold text-gray-400 text-xs uppercase mb-3 ml-1">Hotels</h3>
                 <div class="space-y-3">
@@ -157,10 +161,12 @@
 
         <div v-if="currentTab === 'shopping'" class="bg-white rounded-3xl p-6 shadow-sm min-h-[60vh]">
             <h2 class="text-2xl font-black text-gray-800 border-l-4 border-maple-orange pl-3 mb-6">SHOPPING</h2>
+            
             <div class="flex gap-2 mb-6 bg-gray-50 p-2 rounded-2xl border border-gray-100">
                 <input v-model="newShopItem" placeholder="輸入想買的物品..." class="flex-1 bg-transparent px-2 outline-none text-gray-700 min-w-0" @keyup.enter="addShopItem">
                 <button @click="addShopItem" class="w-10 h-10 bg-maple-orange text-white rounded-xl flex-shrink-0 flex items-center justify-center shadow-md btn-press"><i class="fa-solid fa-plus"></i></button>
             </div>
+
             <div class="space-y-3">
                 <div v-for="(item, idx) in shoppingList" :key="idx" class="flex items-center justify-between p-4 bg-bg-beige rounded-2xl transition-all">
                     <div class="flex items-center gap-3 overflow-hidden">
@@ -174,6 +180,7 @@
 
         <div v-if="currentTab === 'wallet'" class="bg-white rounded-3xl p-6 shadow-sm min-h-[60vh]">
             <h2 class="text-2xl font-black text-gray-800 border-l-4 border-gray-800 pl-3 mb-6">WALLET</h2>
+            
             <div class="bg-gray-800 text-white p-6 rounded-2xl mb-6 shadow-xl relative overflow-hidden">
                 <div class="absolute -right-5 -top-5 w-24 h-24 bg-gray-700 rounded-full opacity-50 blur-xl"></div>
                 <p class="text-xs text-gray-400 mb-1 uppercase tracking-widest relative z-10">Total Spent</p>
@@ -183,6 +190,7 @@
                 </div>
                 <p class="text-xs text-gray-500 mt-2 relative z-10">≈ NT$ {{ Math.round(totalExpense * 0.22).toLocaleString() }}</p>
             </div>
+
             <div class="flex gap-2 mb-6 bg-gray-50 p-2 rounded-2xl border border-gray-100">
                 <div class="flex flex-1 gap-2 min-w-0">
                     <input v-model="newExpenseName" placeholder="品項" class="flex-[2] bg-white rounded-xl px-3 py-2 text-sm outline-none border border-transparent focus:border-gray-200 min-w-0">
@@ -190,6 +198,7 @@
                 </div>
                 <button @click="addExpense" class="w-10 h-10 bg-gray-800 text-white rounded-xl flex-shrink-0 flex items-center justify-center shadow-md btn-press"><i class="fa-solid fa-plus"></i></button>
             </div>
+
             <div class="space-y-3">
                 <div v-for="(ex, idx) in expenses" :key="idx" class="flex justify-between items-center p-3 border-b border-gray-100 last:border-0">
                     <span class="font-bold text-gray-600 truncate mr-2">{{ ex.name }}</span>
@@ -245,7 +254,7 @@
 </div>
 
 <script>
-    const { createApp, ref, computed } = Vue;
+    const { createApp, ref, computed, watch, onMounted } = Vue;
 
     createApp({
         setup() {
@@ -253,92 +262,8 @@
             const activeDay = ref(0);
             const jpy = ref('');
 
-            // --- 購物清單 ---
-            const newShopItem = ref('');
-            const shoppingList = ref([]);
-            const addShopItem = () => {
-                if(newShopItem.value.trim()) {
-                    shoppingList.value.push({ name: newShopItem.value, done: false });
-                    newShopItem.value = '';
-                }
-            };
-            const removeShopItem = (idx) => shoppingList.value.splice(idx, 1);
-
-            // --- 記帳 ---
-            const newExpenseName = ref('');
-            const newExpensePrice = ref('');
-            const expenses = ref([]);
-            const addExpense = () => {
-                if(newExpenseName.value.trim() && newExpensePrice.value) {
-                    expenses.value.unshift({ name: newExpenseName.value, price: newExpensePrice.value });
-                    newExpenseName.value = '';
-                    newExpensePrice.value = '';
-                }
-            };
-            const removeExpense = (idx) => expenses.value.splice(idx, 1);
-            const totalExpense = computed(() => expenses.value.reduce((acc, cur) => acc + parseInt(cur.price || 0), 0));
-
-            // --- 行程編輯邏輯 ---
-            const showModal = ref(false);
-            const isEditing = ref(false);
-            const editingIndex = ref(-1);
-            const tempItem = ref({ title: '', time: '', tag: '自訂', desc: '' });
-
-            const openAddModal = () => {
-                isEditing.value = false;
-                tempItem.value = { title: '', time: '', tag: '自訂', desc: '' };
-                showModal.value = true;
-            };
-
-            const openEditModal = (idx) => {
-                isEditing.value = true;
-                editingIndex.value = idx;
-                // 複製一份資料，避免直接修改原始資料 (Deep copy)
-                const item = schedule[activeDay.value].items[idx];
-                tempItem.value = { ...item };
-                showModal.value = true;
-            };
-
-            const closeModal = () => { showModal.value = false; };
-
-            const saveSchedule = () => {
-                if (!tempItem.value.title) return;
-
-                const itemData = {
-                    ...tempItem.value,
-                    time: tempItem.value.time || '待定'
-                };
-
-                if (isEditing.value) {
-                    // 更新現有行程
-                    schedule[activeDay.value].items[editingIndex.value] = itemData;
-                } else {
-                    // 新增行程
-                    schedule[activeDay.value].items.push(itemData);
-                }
-                closeModal();
-            };
-
-            const deleteScheduleItem = (idx) => {
-                if (confirm('確定要刪除這個行程嗎？')) {
-                    schedule[activeDay.value].items.splice(idx, 1);
-                }
-            };
-
-            const tabs = [
-                { id: 'plan', icon: 'fa-solid fa-map-location-dot' },
-                { id: 'info', icon: 'fa-solid fa-circle-info' },
-                { id: 'shopping', icon: 'fa-solid fa-bag-shopping' },
-                { id: 'wallet', icon: 'fa-solid fa-wallet' }
-            ];
-
-            const hotels = [
-                { date: '12/1-12/5', name: 'HOTEL TAVINOS KYOTO', map: 'https://maps.app.goo.gl/GrAkB11cmNn57mP98' },
-                { date: '12/6-12/7', name: 'Fairfield by Marriott Amanohashidate', map: 'https://maps.app.goo.gl/mzVBjuJjCPPBfZoD8' },
-                { date: '12/8-12/10', name: '大阪東急卓越大酒店', map: 'https://maps.app.goo.gl/cdqtuwEE88ELaUqf7' }
-            ];
-
-            const schedule = [
+            // 原始預設行程
+            const defaultSchedule = [
                 {
                     week: 'Sun', date: '01',
                     items: [
@@ -355,10 +280,122 @@
                 { week: 'Thu', date: '05', items: [{ tag: '婚紗', title: '化妝', time: '05:00', desc: '飯店造型開始' }, { tag: '婚紗', title: '邊走邊拍 (白紗)', time: '08:00', desc: '鴨川、花見小路、祇園周邊', transport: 'Walk', transportType: 'walk' }, { tag: '婚紗', title: '換造型', time: '11:00', desc: '回飯店換裝' }, { tag: '婚紗', title: '真如堂 (黑紗)', time: '12:00', desc: '搭 Uber 前往拍攝', transport: 'Uber', transportType: 'car' }] },
                 { week: 'Fri', date: '06', items: [{ tag: '移動', title: '退房午餐', time: '10:00', desc: '京都車站用餐，購買 JR PASS' }, { tag: '交通', title: '前往西舞鶴', time: '12:25', desc: 'JR 列車 (抵達 13:54)', transport: 'Train', transportType: 'train' }, { tag: '交通', title: '青松號', time: '14:37', desc: '西舞鶴發車 → 天橋立 (15:18)', transportType: 'train' }, { tag: '景點', title: '天橋立沙洲', time: '15:30', desc: 'Check-in 後散步', map: 'https://maps.app.goo.gl/WGSuJ9RVLg9EkLe97' }, { tag: '美食', title: '富田屋', time: '18:00', desc: '晚餐、宮津市區漫步', map: 'https://maps.app.goo.gl/FMrDLK1WYR7x8fc59' }] },
                 { week: 'Sat', date: '07', items: [{ tag: '景點', title: 'View Land', time: '09:00', desc: '搭乘纜車/吊椅上山看飛龍觀', map: 'https://maps.app.goo.gl/c8CbcXQoiQ9cfpgt6' }, { tag: '美食', title: '松和物産 本店', time: '11:00', desc: '下山午餐', map: 'https://maps.app.goo.gl/Wsc1p4FSy6XZP7gJ9' }, { tag: '交通', title: '前往伊根', time: '12:30', desc: '搭乘巴士 (約30-60分)', transport: 'Bus', transportType: 'bus' }, { tag: '景點', title: '伊根舟屋', time: '14:00', desc: 'Ine Cafe 下午茶、伊根浦公園', map: 'https://maps.app.goo.gl/QXo7TDfrugrgY8Ww7' }, { tag: '交通', title: '返回天橋立', time: '17:00', desc: '搭巴士回飯店', transportType: 'bus' }] },
-                { week: 'Sun', date: '08', items: [{ tag: '交通', title: '返回大阪', time: '11:55', desc: '搭火車前往大阪 (14:23 抵達)', transport: 'Train', transportType: 'train' }, { tag: '住宿', title: '大阪東急卓越', time: '15:00', desc: 'Check-in', map: 'https://maps.app.goo.gl/cdqtuwEE88ELaUqf7' }, { tag: '景點', title: '道頓崛坐船', time: '16:00', desc: '驚安殿堂旁搭船 (20分鐘)' }, { tag: '景點', title: '摩天輪', time: '20:00', desc: '唐吉訶德摩天輪', map: 'https://maps.app.goo.gl/EYXuAxRUkipeCY5i9' }, { tag: '美食', title: '螃蟹料理', time: '21:00', desc: '道頓崛周邊晚餐', map: 'https://maps.app.goo.gl/sJEvmTap5yQeCz8B8' }] },
+                { week: 'Sun', date: '08', items: [{ tag: '交通', title: '返回大阪', time: '11:55', desc: '搭火車前往大阪 (14:23抵達)', transport: 'Train', transportType: 'train' }, { tag: '住宿', title: '大阪東急卓越', time: '15:00', desc: 'Check-in', map: 'https://maps.app.goo.gl/cdqtuwEE88ELaUqf7' }, { tag: '景點', title: '道頓崛坐船', time: '16:00', desc: '驚安殿堂旁搭船 (20分鐘)' }, { tag: '景點', title: '摩天輪', time: '20:00', desc: '唐吉訶德摩天輪', map: 'https://maps.app.goo.gl/EYXuAxRUkipeCY5i9' }, { tag: '美食', title: '螃蟹料理', time: '21:00', desc: '道頓崛周邊晚餐', map: 'https://maps.app.goo.gl/sJEvmTap5yQeCz8B8' }] },
                 { week: 'Mon', date: '09', items: [{ tag: '景點', title: '環球影城', time: '08:30', desc: '抵達 USJ', transport: 'Train', transportType: 'train' }, { tag: '活動', title: 'VIP 導覽', time: '10:30', desc: '導覽開始，請準時集合' }] },
                 { week: 'Tue', date: '10', items: [{ tag: '景點', title: '大阪市區', time: '10:00', desc: '通天閣溜滑梯', map: 'https://maps.app.goo.gl/EDMsaoQSa8ZWZfGn6' }, { tag: '景點', title: '中崎町', time: '14:00', desc: '散步、下午茶', map: 'https://maps.app.goo.gl/jevJ9raG4xTxP8oT8' }, { tag: '美食', title: '浪芳庵', time: '16:00', desc: '日式點心', map: 'https://maps.app.goo.gl/ogQii3XbMCJmJ8LZ6' }] },
                 { week: 'Wed', date: '11', items: [{ tag: '交通', title: '前往機場', time: '07:00', desc: '專車/巴士前往 KIX (1小時)', transport: 'Car', transportType: 'car' }, { tag: '航班', title: '返回高雄', time: '11:55', desc: 'EVA BR181 起飛 -> 14:30 抵達', transport: 'plane', transportType: 'plane' }] }
+            ];
+
+            const schedule = ref(JSON.parse(JSON.stringify(defaultSchedule)));
+            const shoppingList = ref([]);
+            const expenses = ref([]);
+
+            // ======================
+            //  Local Storage (手機記憶)
+            // ======================
+            onMounted(() => {
+                const savedSchedule = localStorage.getItem('trip_schedule_v2');
+                if (savedSchedule) schedule.value = JSON.parse(savedSchedule);
+                
+                const savedShop = localStorage.getItem('trip_shop_v2');
+                if (savedShop) shoppingList.value = JSON.parse(savedShop);
+                
+                const savedExp = localStorage.getItem('trip_exp_v2');
+                if (savedExp) expenses.value = JSON.parse(savedExp);
+            });
+
+            // 自動存檔
+            watch(schedule, (val) => localStorage.setItem('trip_schedule_v2', JSON.stringify(val)), { deep: true });
+            watch(shoppingList, (val) => localStorage.setItem('trip_shop_v2', JSON.stringify(val)), { deep: true });
+            watch(expenses, (val) => localStorage.setItem('trip_exp_v2', JSON.stringify(val)), { deep: true });
+
+            const resetData = () => {
+                if (confirm('確定要清除所有紀錄並還原到預設行程嗎？\n(您新增的購物清單和記帳也會消失)')) {
+                    schedule.value = JSON.parse(JSON.stringify(defaultSchedule));
+                    shoppingList.value = [];
+                    expenses.value = [];
+                    localStorage.clear();
+                    alert('已還原！');
+                }
+            };
+
+            // ======================
+            //  UI 邏輯
+            // ======================
+            
+            // 購物
+            const newShopItem = ref('');
+            const addShopItem = () => {
+                if(newShopItem.value.trim()) {
+                    shoppingList.value.push({ name: newShopItem.value, done: false });
+                    newShopItem.value = '';
+                }
+            };
+            const removeShopItem = (idx) => shoppingList.value.splice(idx, 1);
+
+            // 記帳
+            const newExpenseName = ref('');
+            const newExpensePrice = ref('');
+            const addExpense = () => {
+                if(newExpenseName.value.trim() && newExpensePrice.value) {
+                    expenses.value.unshift({ name: newExpenseName.value, price: newExpensePrice.value });
+                    newExpenseName.value = '';
+                    newExpensePrice.value = '';
+                }
+            };
+            const removeExpense = (idx) => expenses.value.splice(idx, 1);
+            const totalExpense = computed(() => expenses.value.reduce((acc, cur) => acc + parseInt(cur.price || 0), 0));
+
+            // 行程編輯/新增
+            const showModal = ref(false);
+            const isEditing = ref(false);
+            const editingIndex = ref(-1);
+            const tempItem = ref({ title: '', time: '', tag: '自訂', desc: '' });
+
+            const openAddModal = () => {
+                isEditing.value = false;
+                tempItem.value = { title: '', time: '', tag: '自訂', desc: '' };
+                showModal.value = true;
+            };
+
+            const openEditModal = (idx) => {
+                isEditing.value = true;
+                editingIndex.value = idx;
+                const item = schedule.value[activeDay.value].items[idx];
+                tempItem.value = { ...item };
+                showModal.value = true;
+            };
+
+            const closeModal = () => { showModal.value = false; };
+
+            const saveSchedule = () => {
+                if (!tempItem.value.title) return;
+                const itemData = { ...tempItem.value, time: tempItem.value.time || '待定' };
+                if (isEditing.value) {
+                    schedule.value[activeDay.value].items[editingIndex.value] = itemData;
+                } else {
+                    schedule.value[activeDay.value].items.push(itemData);
+                }
+                closeModal();
+            };
+
+            const deleteScheduleItem = (idx) => {
+                if (confirm('刪除後無法復原，確定嗎？')) {
+                    schedule.value[activeDay.value].items.splice(idx, 1);
+                }
+            };
+
+            const tabs = [
+                { id: 'plan', icon: 'fa-solid fa-map-location-dot' },
+                { id: 'info', icon: 'fa-solid fa-circle-info' },
+                { id: 'shopping', icon: 'fa-solid fa-bag-shopping' },
+                { id: 'wallet', icon: 'fa-solid fa-wallet' }
+            ];
+
+            const hotels = [
+                { date: '12/1-12/5', name: 'HOTEL TAVINOS KYOTO', map: 'https://maps.app.goo.gl/GrAkB11cmNn57mP98' },
+                { date: '12/6-12/7', name: 'Fairfield by Marriott Amanohashidate', map: 'https://maps.app.goo.gl/mzVBjuJjCPPBfZoD8' },
+                { date: '12/8-12/10', name: '大阪東急卓越大酒店', map: 'https://maps.app.goo.gl/cdqtuwEE88ELaUqf7' }
             ];
 
             const getTransportIcon = (type) => {
@@ -370,7 +407,7 @@
                 currentTab, activeDay, jpy, tabs, schedule, hotels, getTransportIcon, 
                 newShopItem, shoppingList, addShopItem, removeShopItem, 
                 newExpenseName, newExpensePrice, expenses, addExpense, removeExpense, totalExpense,
-                showModal, tempItem, openAddModal, openEditModal, closeModal, saveSchedule, deleteScheduleItem, isEditing
+                showModal, tempItem, openAddModal, openEditModal, closeModal, saveSchedule, deleteScheduleItem, isEditing, resetData
             };
         }
     }).mount('#app');
