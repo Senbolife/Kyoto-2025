@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>京都楓葉秋旅 2024</title>
+    <title>2025 京都自由行</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -85,6 +85,10 @@
                     </div>
                 </div>
             </div>
+
+            <button @click="addScheduleItem" class="fixed bottom-6 right-6 w-14 h-14 bg-maple-orange text-white rounded-full shadow-xl flex items-center justify-center text-2xl z-50 hover:scale-110 transition-transform btn-shadow">
+                <i class="fa-solid fa-plus"></i>
+            </button>
         </div>
 
         <div v-if="currentTab === 'info'" class="space-y-6 bg-white rounded-3xl p-6 shadow-sm">
@@ -206,6 +210,19 @@
             const removeExpense = (idx) => expenses.value.splice(idx, 1);
             const totalExpense = computed(() => expenses.value.reduce((acc, cur) => acc + parseInt(cur.price || 0), 0));
 
+            // --- 行程新增邏輯 (簡易版) ---
+            const addScheduleItem = () => {
+                const title = prompt("輸入行程名稱:");
+                if (title) {
+                    schedule[activeDay.value].items.push({
+                        tag: '自訂',
+                        title: title,
+                        time: '待定',
+                        desc: '新增的行程項目'
+                    });
+                }
+            };
+
             // 分頁設定
             const tabs = [
                 { id: 'plan', icon: 'fa-solid fa-map-location-dot' },
@@ -220,7 +237,7 @@
                 { date: '12/8-12/10', name: '大阪東急卓越大酒店', map: 'https://maps.app.goo.gl/cdqtuwEE88ELaUqf7' }
             ];
 
-            // 完整行程資料 (D1-D11) - 已嚴格核對您的輸入
+            // 完整行程資料 (D1-D11)
             const schedule = [
                 {
                     week: 'Sun', date: '01',
@@ -235,4 +252,23 @@
                 { week: 'Mon', date: '02', items: [{ tag: '場勘', title: '京都巡禮', time: '09:00', desc: '路線：鴨川 → 花見小路 → 祇園白川 → 璃光和服 → 八阪神社' }, { tag: '其他', title: '自由活動', time: '14:00', desc: '飲料販賣機考察、市區逛街' }] },
                 { week: 'Tue', date: '03', items: [{ tag: '攝影', title: '全家福拍攝', time: '08:00', desc: '筱芷全家福開拍' }] },
                 { week: 'Wed', date: '04', items: [{ tag: '婚紗', title: '化妝', time: '05:15', desc: '飯店內造型開始 (至 08:15)' }, { tag: '婚紗', title: '南禪寺 (白紗)', time: '08:40', desc: '搭 Uber 前往，拍攝楓葉景', map: 'https://maps.app.goo.gl/dZsazXwqarpga3p9A', transport: 'Uber', transportType: 'car' }, { tag: '婚紗', title: '移動換裝', time: '10:40', desc: '前往和服店' }, { tag: '婚紗', title: '二三年阪 (和服)', time: '12:30', desc: '日式街景拍攝', map: '' }] },
-                { week: 'Thu', date: '
+                { week: 'Thu', date: '05', items: [{ tag: '婚紗', title: '化妝', time: '05:00', desc: '飯店造型開始' }, { tag: '婚紗', title: '邊走邊拍 (白紗)', time: '08:00', desc: '鴨川、花見小路、祇園周邊', transport: 'Walk', transportType: 'walk' }, { tag: '婚紗', title: '換造型', time: '11:00', desc: '回飯店換裝' }, { tag: '婚紗', title: '真如堂 (黑紗)', time: '12:00', desc: '搭 Uber 前往拍攝', transport: 'Uber', transportType: 'car' }] },
+                { week: 'Fri', date: '06', items: [{ tag: '移動', title: '退房午餐', time: '10:00', desc: '京都車站用餐，購買 JR PASS' }, { tag: '交通', title: '前往西舞鶴', time: '12:25', desc: 'JR 列車 (抵達 13:54)', transport: 'Train', transportType: 'train' }, { tag: '交通', title: '青松號', time: '14:37', desc: '西舞鶴發車 → 天橋立 (15:18)', transportType: 'train' }, { tag: '景點', title: '天橋立沙洲', time: '15:30', desc: 'Check-in 後散步', map: 'https://maps.app.goo.gl/WGSuJ9RVLg9EkLe97' }, { tag: '美食', title: '富田屋', time: '18:00', desc: '晚餐、宮津市區漫步', map: 'https://maps.app.goo.gl/FMrDLK1WYR7x8fc59' }] },
+                { week: 'Sat', date: '07', items: [{ tag: '景點', title: 'View Land', time: '09:00', desc: '搭乘纜車/吊椅上山看飛龍觀', map: 'https://maps.app.goo.gl/c8CbcXQoiQ9cfpgt6' }, { tag: '美食', title: '松和物産 本店', time: '11:00', desc: '下山午餐', map: 'https://maps.app.goo.gl/Wsc1p4FSy6XZP7gJ9' }, { tag: '交通', title: '前往伊根', time: '12:30', desc: '搭乘巴士 (約30-60分)', transport: 'Bus', transportType: 'bus' }, { tag: '景點', title: '伊根舟屋', time: '14:00', desc: 'Ine Cafe 下午茶、伊根浦公園', map: 'https://maps.app.goo.gl/QXo7TDfrugrgY8Ww7' }, { tag: '交通', title: '返回天橋立', time: '17:00', desc: '搭巴士回飯店', transportType: 'bus' }] },
+                { week: 'Sun', date: '08', items: [{ tag: '交通', title: '返回大阪', time: '11:55', desc: '搭火車前往大阪 (14:23 抵達)', transport: 'Train', transportType: 'train' }, { tag: '住宿', title: '大阪東急卓越', time: '15:00', desc: 'Check-in', map: 'https://maps.app.goo.gl/cdqtuwEE88ELaUqf7' }, { tag: '景點', title: '道頓崛坐船', time: '16:00', desc: '驚安殿堂旁搭船 (20分鐘)' }, { tag: '景點', title: '摩天輪', time: '20:00', desc: '唐吉訶德摩天輪', map: 'https://maps.app.goo.gl/EYXuAxRUkipeCY5i9' }, { tag: '美食', title: '螃蟹料理', time: '21:00', desc: '道頓崛周邊晚餐', map: 'https://maps.app.goo.gl/sJEvmTap5yQeCz8B8' }] },
+                { week: 'Mon', date: '09', items: [{ tag: '景點', title: '環球影城', time: '08:30', desc: '抵達 USJ', transport: 'Train', transportType: 'train' }, { tag: '活動', title: 'VIP 導覽', time: '10:30', desc: '導覽開始，請準時集合' }] },
+                { week: 'Tue', date: '10', items: [{ tag: '景點', title: '大阪市區', time: '10:00', desc: '通天閣溜滑梯', map: 'https://maps.app.goo.gl/EDMsaoQSa8ZWZfGn6' }, { tag: '景點', title: '中崎町', time: '14:00', desc: '散步、下午茶', map: 'https://maps.app.goo.gl/jevJ9raG4xTxP8oT8' }, { tag: '美食', title: '浪芳庵', time: '16:00', desc: '日式點心', map: 'https://maps.app.goo.gl/ogQii3XbMCJmJ8LZ6' }] },
+                { week: 'Wed', date: '11', items: [{ tag: '交通', title: '前往機場', time: '07:00', desc: '專車/巴士前往 KIX (1小時)', transport: 'Car', transportType: 'car' }, { tag: '航班', title: '返回高雄', time: '11:55', desc: 'EVA BR181 起飛 -> 14:30 抵達', transport: 'plane', transportType: 'plane' }] }
+            ];
+
+            const getTransportIcon = (type) => {
+                const map = { plane: 'fa-solid fa-plane', train: 'fa-solid fa-train-subway', bus: 'fa-solid fa-bus', car: 'fa-solid fa-car', walk: 'fa-solid fa-person-walking' };
+                return map[type] || 'fa-solid fa-location-arrow';
+            };
+
+            return { currentTab, activeDay, jpy, tabs, schedule, hotels, getTransportIcon, newShopItem, shoppingList, addShopItem, removeShopItem, newExpenseName, newExpensePrice, expenses, addExpense, removeExpense, totalExpense, addScheduleItem };
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
